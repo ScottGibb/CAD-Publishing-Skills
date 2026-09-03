@@ -23,6 +23,10 @@ LICENSE_LABELS = {
     "CC-BY-4.0": "CC BY 4.0",
     "CC-BY-SA-4.0": "CC BY-SA 4.0",
 }
+SLICING_REQUIRED_KEYS = {
+    "output_folder", "config_path", "printer", "material", "nozzle_diameter_mm",
+    "layer_height_mm", "infill_percent", "supports", "brim", "goal",
+}
 
 
 def sha256(path: Path) -> str:
@@ -58,6 +62,33 @@ def publication(note: Path) -> dict:
     built_model_photos = data.get("built_model_photos", [])
     if not isinstance(built_model_photos, list) or not all(isinstance(item, str) and item for item in built_model_photos):
         raise ValueError("built_model_photos must be a list of non-empty file paths")
+    slicing = data.get("slicing")
+    if slicing is not None:
+        if not isinstance(slicing, dict):
+            raise ValueError("slicing must be an object")
+        if not isinstance(slicing.get("enabled"), bool):
+            raise ValueError("slicing.enabled must be true or false")
+        if slicing["enabled"]:
+            missing_slicing = SLICING_REQUIRED_KEYS - slicing.keys()
+            if missing_slicing:
+                raise ValueError(
+                    "slicing metadata is missing: " + ", ".join(sorted(missing_slicing))
+                )
+            for key in ("output_folder", "config_path", "printer", "material", "goal"):
+                if not isinstance(slicing[key], str) or not slicing[key].strip():
+                    raise ValueError(f"slicing.{key} must be a non-empty string")
+            for key in ("nozzle_diameter_mm", "layer_height_mm"):
+                value = slicing[key]
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or value <= 0:
+                    raise ValueError(f"slicing.{key} must be a positive number")
+            infill = slicing["infill_percent"]
+            if isinstance(infill, bool) or not isinstance(infill, (int, float)) or not 0 <= infill <= 100:
+                raise ValueError("slicing.infill_percent must be between 0 and 100")
+            for key in ("supports", "brim"):
+                if not isinstance(slicing[key], bool):
+                    raise ValueError(f"slicing.{key} must be true or false")
+            if not printables_files:
+                raise ValueError("slicing is enabled but printables_files is empty")
     return data
 
 
@@ -92,6 +123,35 @@ def resolve_external_files(data: dict, field: str, folder: Path,
     return paths
 
 
+def resolve_declared_path(value: str, folder: Path) -> Path:
+    path = Path(value).expanduser()
+    if not path.is_absolute():
+        path = folder / path
+    return path.resolve()
+
+
+def match_sliced_outputs(stls: list[Path], outputs: list[Path]) -> list[dict]:
+    if len(outputs) != len(stls):
+        raise ValueError("Slicing must produce exactly one print file per component STL")
+    unmatched = set(outputs)
+    mappings = []
+    for stl in stls:
+        matches = [
+            path for path in unmatched
+            if path.stem == stl.stem
+            or path.stem.startswith(f"{stl.stem}_")
+            or path.stem.startswith(f"{stl.stem}-")
+        ]
+        if len(matches) != 1:
+            raise ValueError(f"Expected exactly one sliced output matching {stl.name}")
+        output = matches[0]
+        unmatched.remove(output)
+        mappings.append({"stl": stl.name, "print_file": output.name})
+    if unmatched:
+        raise ValueError("Sliced outputs contain files that do not match a component STL")
+    return mappings
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--note", required=True, type=Path)
@@ -123,6 +183,32 @@ def main() -> int:
     drawings = sorted(folder.glob(f"{prefix}-drawing.pdf"))
     if not stls or len(steps) != 1 or len(archives) != 1 or len(drawings) != 1:
         raise ValueError("Required files: one or more component STL, exactly one assembly STEP, one F3D, and one drawing PDF")
+    slicing_record = None
+    slicing = data.get("slicing")
+    if slicing and slicing["enabled"]:
+        output_folder = resolve_declared_path(slicing["output_folder"], folder)
+        config_path = resolve_declared_path(slicing["config_path"], folder)
+        if not output_folder.is_dir():
+            raise ValueError(f"Slicing output folder does not exist: {output_folder}")
+        if config_path.suffix.lower() != ".ini" or not config_path.is_file():
+            raise ValueError(f"Missing PrusaSlicer INI configuration: {config_path}")
+        if not config_path.is_relative_to(output_folder):
+            raise ValueError("slicing.config_path must be inside slicing.output_folder")
+        if any(not path.is_relative_to(output_folder) for path in print_file_paths):
+            raise ValueError("Generated print files must be inside slicing.output_folder")
+        component_outputs = match_sliced_outputs(stls, print_file_paths)
+        slicing_record = {
+            "profile": {
+                key: slicing[key]
+                for key in (
+                    "printer", "material", "nozzle_diameter_mm", "layer_height_mm",
+                    "infill_percent", "supports", "brim", "goal",
+                )
+            },
+            "output_folder": str(output_folder),
+            "config": external_artifact(config_path, "prusaslicer-config"),
+            "component_outputs": component_outputs,
+        }
     images = []
     for name in data["images"]:
         image = folder / name
@@ -160,6 +246,8 @@ def main() -> int:
                 "fusion_export": fusion_export, "publication": data, "files": files}
     if printables_files:
         manifest["printables_files"] = printables_files
+    if slicing_record:
+        manifest["slicing"] = slicing_record
     if "built_model_photos" in data:
         manifest["built_model_photos"] = built_model_photos
     if video:
