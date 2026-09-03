@@ -10,7 +10,7 @@ Use only a `release-manifest.json` produced by `$prepare-3d-model-release`. Do n
 ## Workflow
 
 1. From this skill directory, run `uv run scripts/create_publish_plan.py --manifest <release-manifest.json>` before opening any publishing site. It rejects changed or missing assets and writes a dry-run publication plan.
-2. Use the connected browser in the existing signed-in Thingiverse and Printables sessions to create completed drafts from the plan. Upload shared `files` to both services, append optional `built_model_photos` to both galleries in their listed order, populate Thingiverse's Post-Printing section when the plan supplies it, upload optional `printables_files` only to Printables' Print Files area, and verify the saved draft URLs.
+2. Use the connected browser in the existing signed-in Thingiverse and Printables sessions to create completed drafts from the plan. Upload shared `files` to both services, append optional `built_model_photos` to both galleries in their listed order, populate Thingiverse's Post-Printing section when the plan supplies it, and upload `printables_files` only to Printables' Print Files area. When `slicing` is present, verify Printables detects values consistent with its recorded profile before saving. Verify the saved draft URLs.
 3. From this skill directory, run `uv run scripts/upload_youtube.py` with a Google OAuth desktop-client secret held outside the vault. The script uploads **private** only and records the result in a separate publication record.
 4. Create or update `publication-record.json` beside the manifest with the two draft URLs and optional YouTube URL. Do not alter the manifest.
 

@@ -39,6 +39,30 @@ def verify_printables_file(item: dict) -> None:
         raise ValueError(f"Printables print file changed or is missing: {item['path']}")
 
 
+def verify_slicing(manifest: dict) -> dict | None:
+    slicing = manifest.get("slicing")
+    if slicing is None:
+        return None
+    if not isinstance(slicing, dict):
+        raise ValueError("Invalid slicing metadata in release manifest")
+    config = slicing.get("config")
+    if not isinstance(config, dict) or not config.get("source_path") or not config.get("sha256"):
+        raise ValueError("Slicing metadata lacks a hashed PrusaSlicer configuration")
+    config_path = Path(config["source_path"])
+    if not config_path.is_file() or sha256(config_path) != config["sha256"]:
+        raise ValueError("PrusaSlicer configuration changed or is missing")
+    if not isinstance(slicing.get("profile"), dict):
+        raise ValueError("Slicing metadata lacks a profile")
+    component_outputs = slicing.get("component_outputs")
+    if not isinstance(component_outputs, list) or not component_outputs:
+        raise ValueError("Slicing metadata lacks component outputs")
+    recorded_outputs = {item.get("print_file") for item in component_outputs}
+    expected_outputs = {item.get("path") for item in manifest.get("printables_files", [])}
+    if None in recorded_outputs or recorded_outputs != expected_outputs:
+        raise ValueError("Slicing component outputs do not match Printables print files")
+    return slicing
+
+
 def verify_built_model_photo(item: dict) -> None:
     path = Path(item["source_path"])
     if not path.is_file() or sha256(path) != item["sha256"]:
@@ -65,6 +89,7 @@ def main() -> int:
         raise ValueError("Invalid printables_files in release manifest")
     for item in printables_files:
         verify_printables_file(item)
+    slicing = verify_slicing(manifest)
     built_model_photos = manifest.get("built_model_photos", [])
     if not isinstance(built_model_photos, list):
         raise ValueError("Invalid built_model_photos in release manifest")
@@ -109,11 +134,15 @@ def main() -> int:
                   "attribution": attribution,
                   "files": manifest["files"], "print_files": printables_files,
                   "built_model_photos": built_model_photos}
+    if slicing:
+        printables["slicing"] = slicing
     plan = {"schema": 1, "created_at": datetime.now(timezone.utc).isoformat(),
             "manifest": str(manifest_path), "mode": "draft-only",
             "thingiverse": thingiverse, "printables": printables,
             "files": manifest["files"], "printables_files": printables_files,
             "built_model_photos": built_model_photos, "video": video}
+    if slicing:
+        plan["slicing"] = slicing
     if args.dry_run:
         print(json.dumps(plan, indent=2))
         return 0
