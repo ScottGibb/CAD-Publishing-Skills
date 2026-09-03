@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare 3D Model Release"
+  short_description: "Export and validate a 3D model release"
+  default_prompt: "Use $prepare-3d-model-release to export and prepare my 3D model release."

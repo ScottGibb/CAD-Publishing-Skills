@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish 3D Model Release"
+  short_description: "Create model drafts and private video uploads"
+  default_prompt: "Use $publish-3d-model-release to publish my validated 3D model release as drafts."
