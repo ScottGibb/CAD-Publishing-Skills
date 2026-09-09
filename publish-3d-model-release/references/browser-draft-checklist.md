@@ -1,5 +1,7 @@
 # Browser draft checklist
 
+This is a manual troubleshooting reference, not the default publishing route. Prefer the separate Python platform skills and their saved verification receipts. Use this checklist only when the user requests a manual review or an adapter issue specifically needs it.
+
 Use `publish-plan.json` as the only upload source. In both Thingiverse and Printables:
 
 1. Start a new model listing and keep its visibility as draft.

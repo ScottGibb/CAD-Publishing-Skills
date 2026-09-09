@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Synthetic draft editor</title></head>
+<body>
+<div id="draft-marker" hidden>This model is a draft</div>
+<form id="editor" onsubmit="return false">
+  <label for="title">Title</label><input id="title">
+  <label for="summary">Summary</label><input id="summary">
+  <label for="description">Description</label><textarea id="description"></textarea>
+  <label for="tags">Tags</label><input id="tags"><div id="tag-items"></div>
+  <label for="category">Category</label><select id="category"><option value="0">Choose</option><option value="5">Bathroom</option></select>
+  <label for="license">License</label><select id="license"><option value="0">Choose</option><option value="cc">CC BY 4.0</option></select>
+  <input type="file" multiple hidden id="file"><div id="file-items"></div>
+  <input type="file" multiple hidden id="image"><div id="image-items"></div>
+  <input type="file" multiple hidden id="print_file"><div id="print_file-items"></div>
+  <button id="save" type="button">Save draft</button>
+  <button id="publish" type="button" onclick="window.unwantedPublish = true">Publish</button>
+</form>
+<script>
+const fields = ['title', 'summary', 'description', 'category', 'license'];
+const groups = ['file', 'image', 'print_file'];
+function append(parent, text) {
+  const span = document.createElement('span'); span.textContent = text; parent.append(span);
+}
+for (const group of groups) {
+  document.getElementById(group).addEventListener('change', e => {
+    for (const file of e.target.files) append(document.getElementById(group + '-items'), file.name);
+  });
+}
+document.getElementById('tags').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault(); append(document.getElementById('tag-items'), e.target.value); e.target.value = '';
+  }
+});
+document.getElementById('save').onclick = () => {
+  const data = Object.fromEntries(fields.map(id => [id, document.getElementById(id).value]));
+  for (const id of ['tag', ...groups]) data[id + '-items'] = Array.from(document.querySelectorAll('#' + id + '-items span')).map(e => e.textContent);
+  localStorage.setItem('draft', JSON.stringify(data));
+  localStorage.setItem('save-count', String(Number(localStorage.getItem('save-count') || 0) + 1));
+  location.href = '/model/42';
+};
+if (location.pathname === '/model/42') {
+  document.getElementById('draft-marker').hidden = false;
+  document.getElementById('editor').hidden = true;
+}
+if (location.pathname === '/model/42/edit') {
+  const data = JSON.parse(localStorage.getItem('draft'));
+  for (const id of fields) document.getElementById(id).value = data[id];
+  for (const id of ['tag', ...groups]) for (const name of data[id + '-items']) append(document.getElementById(id + '-items'), name);
+}
+</script>
+</body>
+</html>

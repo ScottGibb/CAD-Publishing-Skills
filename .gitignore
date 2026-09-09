@@ -4,4 +4,10 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
-
+.publication-state/
+publication-record.json
+publication-record.lock
+*token*.json
+*token*.txt
+*client-secret*.json
+youtube-upload-*.json

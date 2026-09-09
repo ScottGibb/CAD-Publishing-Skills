@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish YouTube"
+  short_description: "Upload private model videos using the YouTube API"
+  default_prompt: "Use $publish-youtube to upload my prepared model video privately."

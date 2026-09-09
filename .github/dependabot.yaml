@@ -16,7 +16,10 @@ updates:
   - package-ecosystem: "uv"
     directories:
       - "/prepare-3d-model-release"
-      - "publish-3d-model-release"
+      - "/publish-3d-model-release"
+      - "/publish-thingiverse"
+      - "/publish-printables"
+      - "/publish-youtube"
     schedule:
       interval: "monthly"
     commit-message:

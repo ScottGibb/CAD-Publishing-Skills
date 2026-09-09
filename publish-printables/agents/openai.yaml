@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish Printables"
+  short_description: "Create Printables drafts with Python scripts"
+  default_prompt: "Use $publish-printables to upload my prepared release as a Printables draft."

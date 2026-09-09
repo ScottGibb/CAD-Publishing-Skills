@@ -6,6 +6,9 @@
   "tag-separator": "-",
   "packages": {
     "prepare-3d-model-release": {},
-    "publish-3d-model-release": {}
+    "publish-3d-model-release": {},
+    "publish-thingiverse": {},
+    "publish-printables": {},
+    "publish-youtube": {}
   }
 }
