@@ -1,4 +1,4 @@
 interface:
   display_name: "Publish Thingiverse"
-  short_description: "Upload Thingiverse drafts through its Python API"
+  short_description: "Create Thingiverse drafts with a Python browser script"
   default_prompt: "Use $publish-thingiverse to upload my prepared release as a Thingiverse draft."

@@ -16,3 +16,15 @@ Video metadata follows [videos.insert](https://developers.google.com/youtube/v3/
 Transfer checkpoints live beside the token by default, named `youtube-upload-<manifest-hash>.json`. This file can contain a sensitive resumable URL; never paste it into chat. Completed video IDs also go into the release's `.publication-state/youtube.json`. Repeating `--execute` resumes the same session or verifies its completed video, including when the final upload response was lost. An ambiguous initiation or expired session stops rather than creating a possible duplicate.
 
 Verification reads privacy, title, description, tags, category and processing once. A processing failure is an error; a video still processing is reported as pending, not finished. Use the same command with `--verify-only` to check later. It preserves the other platforms in `publication-record.json`. Authentication, quota and live transfer behaviour still need an authenticated smoke test; automated tests use a simulated server.
+
+## Shared TOML configuration
+
+Use `--config /Users/scottgibb/.config/cad-publishing/config.toml` for the same private configuration used by Thingiverse:
+
+```toml
+[youtube]
+client_secrets = "google-client.json"
+token_path = "youtube-token.json"
+```
+
+Paths resolve relative to the TOML file; explicit CLI path options override them. Google OAuth client and refresh credentials remain in their native JSON files outside the repository and vault. The client file must be downloaded from Google Cloud; the token file is created by the first successful consent flow. Do not create placeholder credential JSON files.

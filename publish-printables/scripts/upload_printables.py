@@ -4,12 +4,22 @@
 import argparse
 import re
 import sys
-import time
 from pathlib import Path
 from urllib.parse import urlparse
 
 sys.path.insert(
     0, str(Path(__file__).resolve().parents[2] / "publish-3d-model-release" / "scripts")
+)
+from browser_support import (
+    field_value,
+    inspect_page,
+    item_names,
+    manual_chrome_login,
+    normalized,
+    only,
+    safe_click,
+    site_url,
+    wait_for_assets,
 )
 from publisher_support import (
     PublishingError,
@@ -25,7 +35,8 @@ from publisher_support import (
     printables_tags as platform_tags,
 )
 
-CREATE_URL = "https://www.printables.com/model/create"
+ORIGIN = "https://www.printables.com"
+CREATE_URL = ORIGIN + "/model/create"
 
 
 def printables_url(url):
@@ -39,68 +50,6 @@ def printables_url(url):
             "Editor URLs must be on https://www.printables.com/model/"
         )
     return url
-
-
-def locator(page, spec):
-    if "label" in spec:
-        result = page.get_by_label(spec["label"], exact=True)
-    elif "role" in spec and "name" in spec:
-        result = page.get_by_role(spec["role"], name=spec["name"], exact=True)
-    elif "placeholder" in spec:
-        result = page.get_by_placeholder(spec["placeholder"], exact=True)
-    elif "text" in spec:
-        result = page.get_by_text(spec["text"], exact=True)
-    elif "css" in spec:
-        result = page.locator(spec["css"])
-    else:
-        raise PublishingError(
-            "Editor map requires a label, role/name, placeholder, text or CSS locator"
-        )
-    return result
-
-
-def only(page, spec):
-    result = locator(page, spec)
-    if result.count() == 0:
-        result.wait_for(state="attached")
-    if result.count() != 1:
-        raise PublishingError(
-            "Editor map no longer matches exactly one control; run inspect and repair the map"
-        )
-    return result
-
-
-def safe_click(target, draft=False):
-    label = (
-        (target.get_attribute("aria-label") or "") + " " + target.inner_text()
-    ).strip()
-    if re.search(
-        r"\b(publish|delete|public|unlisted|purchase)\b", label, re.IGNORECASE
-    ):
-        raise PublishingError("The mapped action is not a draft operation")
-    if draft and not re.search(r"\bdraft\b", label, re.IGNORECASE):
-        raise PublishingError("The save control does not explicitly say draft")
-    target.click()
-
-
-def inventory(page):
-    if urlparse(page.url).netloc != "www.printables.com":
-        raise PublishingError(
-            "Printables requires sign-in; use the login command first"
-        )
-    return page.locator(
-        "input:not([type=password]):not([type=hidden]),textarea,select,[contenteditable=true],button"
-    ).evaluate_all(
-        """els => els.filter(e => e.type==='file' || e.getClientRects().length).slice(0,100).map(e => ({
-          tag:e.tagName.toLowerCase(),type:e.getAttribute('type'),id:e.id,
-          name:e.getAttribute('name'),accept:e.getAttribute('accept'),multiple:e.multiple,
-          role:e.getAttribute('role'),maxlength:e.getAttribute('maxlength'),
-          label:e.labels ? Array.from(e.labels).map(l=>l.innerText.trim()).join(' ') : null,
-          aria_label:e.getAttribute('aria-label'),placeholder:e.getAttribute('placeholder'),
-          text:e.tagName==='BUTTON' ? e.innerText.trim().slice(0,120) : null,
-          options:e.tagName==='SELECT' ? Array.from(e.options).map(o=>o.text).slice(0,40) : undefined
-        }))"""
-    )
 
 
 def validate_map(mapping, release):
@@ -149,37 +98,6 @@ def validate_map(mapping, release):
     for spec in (mapping["save_draft"], *[x["locator"] for x in mapping["choices"]]):
         if re.search(r"\b(publish|delete|public|unlisted)\b", str(spec), re.IGNORECASE):
             raise PublishingError("Editor map contains a non-draft action")
-
-
-def normalized(text):
-    return " ".join(text.split())
-
-
-def field_value(target):
-    return target.evaluate("e => 'value' in e ? e.value : e.innerText")
-
-
-def item_names(page, spec):
-    items = locator(page, spec)
-    attribute = spec.get("name_attribute")
-    if attribute:
-        return items.evaluate_all(
-            "(els, attr) => els.map(e => e.getAttribute(attr) || '')", attribute
-        )
-    return items.all_text_contents()
-
-
-def wait_for_assets(page, spec, names, timeout=60):
-    deadline = time.monotonic() + timeout
-    while True:
-        seen = {normalized(x) for x in item_names(page, spec)}
-        if set(names) <= seen:
-            return
-        if time.monotonic() >= deadline:
-            raise PublishingError(
-                "Uploaded filenames were not confirmed; inspect the draft and retain the state file"
-            )
-        page.wait_for_timeout(500)
 
 
 def expected_fields(release):
@@ -326,10 +244,20 @@ def main(argv=None):
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--profile-dir", type=Path)
     parser.add_argument("--ui-map", type=Path)
-    parser.add_argument("--url", default=CREATE_URL)
+    parser.add_argument(
+        "--url",
+        default=ORIGIN + "/",
+        help="Observed site page to inspect; sign-in starts at the homepage",
+    )
     parser.add_argument("--resume-url")
     parser.add_argument("--state", type=Path)
     parser.add_argument("--headed", action="store_true")
+    parser.add_argument(
+        "--pause",
+        action="store_true",
+        help="Pause a visible inspection for the user to handle a site checkpoint",
+    )
+    parser.add_argument("--channel", choices=("chrome", "chromium"), default="chrome")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
@@ -357,28 +285,44 @@ def main(argv=None):
         parser.error("--profile-dir is required for login, inspection and execution")
     profile = private_path(args.profile_dir)
     profile.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if profile.stat().st_mode & 0o077:
+        raise PublishingError(
+            "The browser profile must have owner-only permissions (chmod 700)"
+        )
+    if args.command == "login" and args.channel == "chrome":
+        with file_lock(profile / ".publisher.lock"):
+            manual_chrome_login(profile, site_url(args.url, ORIGIN), "printables")
+        return 0
     from playwright.sync_api import sync_playwright
 
-    with sync_playwright() as playwright:
+    with file_lock(profile / ".publisher.lock"), sync_playwright() as playwright:
         context = playwright.chromium.launch_persistent_context(
             str(profile),
-            headless=not (args.headed or args.command == "login"),
+            channel=args.channel,
+            headless=not (args.headed or args.pause or args.command == "login"),
             locale="en-GB",
         )
         context.set_default_timeout(15000)
         try:
             page = context.pages[0] if context.pages else context.new_page()
             if args.command in ("login", "inspect"):
-                page.goto(printables_url(args.url), wait_until="domcontentloaded")
+                response = page.goto(
+                    site_url(args.url, ORIGIN), wait_until="domcontentloaded"
+                )
                 if args.command == "login":
                     input(
                         "Complete Printables sign-in in the opened browser, then press Enter here: "
                     )
+                    response = None
+                elif args.pause:
+                    input(
+                        "Resolve any Printables checkpoint in this window, then press Enter to inspect without uploading: "
+                    )
+                    response = None
                 emit(
                     {
                         "platform": "printables",
-                        "url": page.url.split("?")[0],
-                        "controls": inventory(page),
+                        **inspect_page(page, ORIGIN, response),
                     }
                 )
                 return 0

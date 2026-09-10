@@ -15,3 +15,15 @@ Use this API script with a validated release manifest. Keep this skill with the 
 Run the script rather than reading its implementation. It hashes the video, reuses manifest tags, validates YouTube length limits and sets `privacyStatus=private`. It never opens YouTube Studio or changes privacy to public/unlisted. OAuth consent may need a browser once. Do not store credentials or resumable upload URLs in the vault or repository.
 
 Tests: `uv run --locked python -m unittest discover -s tests`.
+
+## Shared TOML configuration
+
+Use `--config /Users/scottgibb/.config/cad-publishing/config.toml` for the same private configuration used by Thingiverse:
+
+```toml
+[youtube]
+client_secrets = "google-client.json"
+token_path = "youtube-token.json"
+```
+
+Paths resolve relative to the TOML file; explicit CLI path options override them. Google OAuth client and refresh credentials remain in their native JSON files outside the repository and vault. The client file must be downloaded from Google Cloud; the token file is created by the first successful consent flow. Do not create placeholder credential JSON files.

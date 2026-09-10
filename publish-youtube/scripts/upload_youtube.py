@@ -6,6 +6,7 @@ import json
 import mimetypes
 import re
 import sys
+import tomllib
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -272,9 +273,29 @@ def verify(release, state, http, video_id):
     emit({"platform": "youtube", "status": label, **result})
 
 
+def apply_config(args):
+    if not args.config:
+        return
+    path = private_path(args.config)
+    try:
+        data = tomllib.loads(path.read_text())["youtube"]
+        if not isinstance(data, dict):
+            raise ValueError()
+        for key in ("client_secrets", "token_path", "session_path"):
+            value = data.get(key)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ValueError()
+            if getattr(args, key) is None and value:
+                candidate = Path(value).expanduser()
+                setattr(args, key, private_path(candidate if candidate.is_absolute() else path.parent / candidate))
+    except (OSError, ValueError, KeyError, TypeError):
+        raise PublishingError("Invalid YouTube config: expected [youtube] credential file paths") from None
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", required=True, type=Path)
+    parser.add_argument("--config", type=Path, help="Shared private publishing config.toml")
     parser.add_argument("--client-secrets", type=Path)
     parser.add_argument("--token-path", type=Path)
     parser.add_argument("--session-path", type=Path)
@@ -284,6 +305,7 @@ def main(argv=None):
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--verify-only", action="store_true")
     args = parser.parse_args(argv)
+    apply_config(args)
     release = Release(args.manifest)
     metadata(release)
     if (not args.execute and not args.verify_only) or args.dry_run:

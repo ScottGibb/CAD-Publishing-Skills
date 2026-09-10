@@ -1,3 +1,6 @@
+import contextlib
+import copy
+import io
 import json
 import sys
 import tempfile
@@ -5,163 +8,248 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import httpx
+from playwright.sync_api import sync_playwright
 
 sys.path.insert(
     0, str(Path(__file__).resolve().parents[2] / "publish-3d-model-release" / "tests")
 )
 from publishing_fixture import make_manifest, module
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 tv = module("thingiverse")
+CREATE_URL = "https://www.thingiverse.com/thing:create"
+MAP = {
+    "schema": 1,
+    "platform": "thingiverse",
+    "create_url": CREATE_URL,
+    "editor_url": "https://www.thingiverse.com/thing:{id}/edit",
+    "category": "Bathroom",
+    "license": "CC-BY-4.0",
+    "fields": {
+        "title": {"label": "Title"},
+        "description": {"label": "Description"},
+        "tags": {"label": "Tags"},
+    },
+    "choices": [
+        {
+            "field": "category",
+            "locator": {"label": "Category"},
+            "option_label": "Bathroom",
+            "verify": {"label": "Category"},
+            "expected": "5",
+        },
+        {
+            "field": "license",
+            "locator": {"label": "License"},
+            "option_label": "CC BY 4.0",
+            "verify": {"label": "License"},
+            "expected": "cc",
+        },
+    ],
+    "uploads": {kind: {"css": "#" + kind} for kind in ("file", "image")},
+    "uploaded_items": {
+        kind: {"css": "#" + kind + "-items span"} for kind in ("file", "image")
+    },
+    "tag_items": {"css": "#tag-items span"},
+    "save_draft": {"role": "button", "name": "Save draft"},
+    "draft_marker": {"css": "#draft-marker"},
+}
 
 
 class ThingiverseTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.playwright = sync_playwright().start()
+        cls.browser = cls.playwright.chromium.launch(headless=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.browser.close()
+        cls.playwright.stop()
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.folder = Path(self.temp.name)
         self.release = tv.Release(make_manifest(self.folder))
+        self.context = self.browser.new_context()
+        self.addCleanup(self.context.close)
+        html = Path(__file__).with_name("editor_fixture.html").read_text()
+        self.requests = []
+
+        def intercept(route):
+            self.requests.append(route.request.url)
+            route.fulfill(status=200, content_type="text/html", body=html)
+
+        # Every request is intercepted; these tests never access an account.
+        self.context.route("**/*", intercept)
+        self.page = self.context.new_page()
+        self.page.set_default_timeout(500)
         self.state = tv.State(self.release, "thingiverse")
 
-    def test_upload_preserves_field_order_and_separates_authorization(self):
-        api_calls, storage_calls = [], []
-        fields = {
-            "key": "uploads/part.stl",
-            "policy": "example-policy",
-            "signature": "example-signature",
-            "success_action_redirect": tv.API + "/files/91/finalize",
-        }
-
-        def api_handler(request):
-            api_calls.append(request)
-            self.assertEqual(request.headers["authorization"], "Bearer fixture-token")
-            if request.url.path.endswith("/files"):
-                return httpx.Response(
-                    200,
-                    json={
-                        "action": "https://www.thingiverse.com/upload_file_storage",
-                        "fields": fields,
-                    },
-                )
-            self.assertEqual(json.loads(request.content), fields)
-            return httpx.Response(200, json={"id": 91})
-
-        def storage_handler(request):
-            storage_calls.append(request)
-            self.assertNotIn("authorization", request.headers)
-            body = request.read().decode()
-            offsets = [body.index(f'name="{key}"') for key in (*fields, "file")]
-            self.assertEqual(offsets, sorted(offsets))
-            self.assertIn("synthetic upload fixture", body)
-            return httpx.Response(200)
-
-        api = tv.Thingiverse(
-            "fixture-token",
-            httpx.Client(transport=httpx.MockTransport(api_handler)),
-            httpx.Client(transport=httpx.MockTransport(storage_handler)),
-        )
-        self.assertEqual(
-            api.upload(42, self.release.assets("thingiverse")[0])["id"], 91
-        )
-        self.assertEqual(len(api_calls), 2)
-        self.assertEqual(len(storage_calls), 1)
-
-    def test_publish_and_foreign_api_destinations_are_rejected(self):
-        api = tv.Thingiverse("fixture-token")
-        for method, path in (
-            ("POST", "/things/42/publish"),
-            ("DELETE", "/things/42"),
-            ("GET", "https://example.com"),
-        ):
-            with self.assertRaises(tv.PublishingError):
-                api.request(method, path)
-
-    def test_work_in_progress_is_not_a_draft(self):
-        for remote in (
-            {"is_wip": True},
-            {"is_wip": True, "is_published": 1},
-            {"is_published": None},
-        ):
-            with self.assertRaises(tv.PublishingError):
-                tv.draft_only(remote)
-        tv.draft_only({"is_published": 0})
-
-    def test_changed_asset_is_rejected_before_any_network(self):
-        (self.folder / "part.stl").write_text("changed")
-        with self.assertRaises(tv.PublishingError):
-            tv.Release(self.release.path)
-
-    def test_gcode_is_only_routed_to_printables(self):
-        self.assertFalse(
-            any(
-                a["name"].endswith(".gcode") for a in self.release.assets("thingiverse")
-            )
-        )
-        self.assertTrue(
-            any(a["name"].endswith(".gcode") for a in self.release.assets("printables"))
-        )
-
-    def test_successful_repeat_does_not_create_or_upload_again(self):
-        class FakeAPI:
-            def __init__(self):
-                self.remote, self.files, self.images = {}, [], []
-                self.creates, self.uploads = 0, 0
-
-            def request(inner, method, path, **kwargs):
-                if method == "POST":
-                    inner.creates += 1
-                    inner.remote = {**kwargs["json"], "id": 42, "is_published": 0}
-                if method == "PATCH":
-                    inner.remote.update(kwargs["json"])
-                if path.endswith("/files"):
-                    return inner.files
-                if path.endswith("/images"):
-                    return inner.images
-                if path.endswith("/tags"):
-                    return inner.remote["tags"]
-                if path.endswith("/categories"):
-                    return [{"name": inner.remote["category"]}]
-                return inner.remote
-
-            def upload(inner, thing_id, asset):
-                inner.uploads += 1
-                item = {"id": inner.uploads, "name": asset["name"]}
-                (inner.images if asset["kind"] == "image" else inner.files).append(item)
-                return item
-
-        api = FakeAPI()
+    def run_draft(self, mapping=MAP, state=None, **kwargs):
         with patch.object(tv, "emit"):
-            tv.run(self.release, self.state, api, "Bathroom")
-            tv.run(self.release, tv.State(self.release, "thingiverse"), api, "Bathroom")
-        self.assertEqual(api.creates, 1)
-        self.assertEqual(api.uploads, len(self.release.assets("thingiverse")))
+            tv.run(self.release, state or self.state, self.page, mapping, **kwargs)
+
+    def test_saved_draft_is_verified_and_rerun_does_not_duplicate_uploads(self):
+        self.run_draft()
+        uploads = self.page.evaluate("localStorage.getItem('upload-count')")
+        self.run_draft(state=tv.State(self.release, "thingiverse"))
+        self.assertEqual(self.page.evaluate("localStorage.getItem('save-count')"), "1")
         self.assertEqual(
-            json.loads((self.folder / "publication-record.json").read_text())[
-                "thingiverse"
-            ]["visibility"],
-            "draft",
+            self.page.evaluate("localStorage.getItem('upload-count')"), uploads
+        )
+        self.assertEqual(
+            self.page.locator("#tag-items span").all_text_contents(),
+            ["towel rack", "bathroom"],
+        )
+        self.assertEqual(
+            self.page.locator("#file-items span").all_text_contents(),
+            ["part.stl", "assembly.step"],
+        )
+        self.assertEqual(
+            self.page.locator("#image-items span").inner_text(), "preview.png"
+        )
+        self.assertIn(
+            "Slide parts together", self.page.get_by_label("Description").input_value()
+        )
+        record = json.loads((self.folder / "publication-record.json").read_text())
+        self.assertEqual(record["thingiverse"]["visibility"], "draft")
+        self.assertFalse(any("api.thingiverse.com" in url for url in self.requests))
+
+    def test_publish_action_is_rejected_before_content_changes(self):
+        mapping = copy.deepcopy(MAP)
+        mapping["save_draft"] = {"role": "button", "name": "Publish Thing"}
+        with self.assertRaisesRegex(tv.PublishingError, "non-draft"):
+            self.run_draft(mapping)
+        self.assertEqual(self.page.url, "about:blank")
+
+    def test_generic_save_requires_a_visible_unpublished_marker(self):
+        self.page.goto(CREATE_URL)
+        self.page.locator("#save").evaluate("e => e.textContent='Save & View'")
+        mapping = copy.deepcopy(MAP)
+        mapping["save_draft"] = {"role": "button", "name": "Save & View"}
+        with self.assertRaisesRegex(tv.PublishingError, "unpublished_marker"):
+            tv.save_control(self.page, mapping, click=True)
+        mapping["unpublished_marker"] = {"css": "#unpublished-marker"}
+        tv.save_control(self.page, mapping)
+        self.page.locator("#unpublished-marker").evaluate("e => e.textContent='Public'")
+        with self.assertRaisesRegex(tv.PublishingError, "unpublished draft"):
+            tv.save_control(self.page, mapping)
+
+    def test_uncertain_write_is_not_repeated(self):
+        self.state.pending("saving-browser-draft")
+        with self.assertRaisesRegex(tv.PublishingError, "draft may exist"):
+            self.run_draft()
+        self.assertEqual(self.page.url, "about:blank")
+
+    def test_lost_save_response_retains_id_and_verifies_without_reupload(self):
+        save = tv.save_control
+
+        def lose_response(page, mapping, click=False):
+            save(page, mapping, click)
+            if click:
+                raise ConnectionError("simulated lost acknowledgement")
+
+        with (
+            patch.object(tv, "save_control", side_effect=lose_response),
+            self.assertRaises(ConnectionError),
+        ):
+            self.run_draft()
+        saved = tv.State(self.release, "thingiverse")
+        self.assertEqual(saved.data["id"], "42")
+        self.assertIn("pending", saved.data)
+        self.run_draft(state=saved)
+        self.assertEqual(self.page.evaluate("localStorage.getItem('save-count')"), "1")
+
+    def test_existing_api_receipt_is_reused_and_other_platforms_are_preserved(self):
+        self.run_draft()
+        record = self.folder / "publication-record.json"
+        data = json.loads(record.read_text())
+        data["youtube"] = {"id": "existing-video"}
+        record.write_text(json.dumps(data))
+        self.state.data = {
+            "schema": 1,
+            "platform": "thingiverse",
+            "manifest_sha256": self.release.digest,
+            "id": 42,
+            "assets": {"old-api-asset": 91},
+            "pending": "upload",
+        }
+        self.state.save()
+        self.run_draft(state=tv.State(self.release, "thingiverse"))
+        self.assertEqual(self.page.evaluate("localStorage.getItem('save-count')"), "1")
+        self.assertEqual(
+            json.loads(record.read_text())["youtube"]["id"], "existing-video"
         )
 
-    def test_rejected_create_can_retry_but_server_failure_stays_uncertain(self):
-        for status in (401, 403, 503):
-            with self.subTest(status=status):
-                self.state.done()
-                with httpx.Client(
-                    transport=httpx.MockTransport(
-                        lambda request, status=status: httpx.Response(status)
-                    )
-                ) as client:
-                    api = tv.Thingiverse("fixture-token", client=client, storage=client)
-                    with self.assertRaisesRegex(tv.PublishingError, f"HTTP {status}"):
-                        tv.run(self.release, self.state, api, "Bathroom")
-                saved = tv.State(self.release, "thingiverse")
-                self.assertEqual(bool(saved.data.get("pending")), status == 503)
-                self.assertNotIn("id", saved.data)
+    def test_conflicting_resume_id_is_rejected_before_navigation(self):
+        self.state.data["id"] = 42
+        with self.assertRaisesRegex(tv.PublishingError, "conflicts"):
+            self.run_draft(thing_id=43)
+        self.assertEqual(self.page.url, "about:blank")
 
-    def test_uncertain_create_is_not_replayed(self):
-        self.state.pending("create")
-        with self.assertRaisesRegex(tv.PublishingError, "already exist"):
-            tv.run(self.release, self.state, None, "Bathroom")
+    def test_published_thing_is_not_modified_or_reported_as_a_draft(self):
+        self.run_draft()
+        self.page.evaluate("localStorage.setItem('published', 'true')")
+        with self.assertRaisesRegex(tv.PublishingError, "identify itself as a draft"):
+            self.run_draft()
+        self.assertEqual(self.page.evaluate("localStorage.getItem('save-count')"), "1")
+
+    def test_post_printing_and_comma_separated_tags_are_verified(self):
+        mapping = copy.deepcopy(MAP)
+        mapping["fields"]["post_printing"] = {"label": "Post-Printing"}
+        mapping["tag_mode"] = "comma-separated"
+        self.run_draft(mapping)
+        self.assertIn(
+            "Slide parts together",
+            self.page.get_by_label("Post-Printing").input_value(),
+        )
+        self.assertEqual(
+            self.page.get_by_label("Tags").input_value(), "towel rack, bathroom"
+        )
+
+    def test_gcode_cannot_be_added_to_the_thingiverse_upload_map(self):
+        mapping = copy.deepcopy(MAP)
+        mapping["uploads"]["print_file"] = {"css": "#file"}
+        with self.assertRaisesRegex(tv.PublishingError, "Printables-only"):
+            self.run_draft(mapping)
+
+    def test_credentials_are_not_read_from_legacy_flags_or_config(self):
+        config = self.folder / "config.toml"
+        config.write_text('[thingiverse]\ntoken = "private-fixture-token"\n')
+        with self.assertRaisesRegex(tv.PublishingError, "no longer supported"):
+            tv.configured_settings(config)
+        config.write_text(
+            '[thingiverse]\nprofile_dir = "/private/profile"\nui_map = "/private/map.json"\n'
+        )
+        self.assertEqual(
+            tv.configured_settings(config)["profile_dir"], "/private/profile"
+        )
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            tv.main(["--token-file", str(config)])
+
+    def test_non_thingiverse_urls_and_unverified_choices_are_rejected(self):
+        for url in (
+            "https://example.com/thing:42",
+            "https://www.thingiverse.com/thing:42?token=x",
+            "https://www.thingiverse.com/thing:42/publish",
+        ):
+            with self.subTest(url=url), self.assertRaises(tv.PublishingError):
+                tv.thingiverse_url(url)
+        mapping = copy.deepcopy(MAP)
+        mapping["choices"] = []
+        with self.assertRaisesRegex(tv.PublishingError, "verified category"):
+            tv.validate_map(mapping, self.release)
+
+    def test_saved_metadata_mismatch_is_not_recorded_as_success(self):
+        self.page.goto(CREATE_URL)
+        with patch.object(tv, "emit"):
+            tv.fill_editor(self.page, MAP, self.release)
+        self.page.get_by_label("Title").fill("Wrong title")
+        with self.assertRaisesRegex(tv.PublishingError, "title differs"):
+            tv.verify_editor(self.page, MAP, self.release)
+        self.assertFalse((self.folder / "publication-record.json").exists())
 
 
 if __name__ == "__main__":

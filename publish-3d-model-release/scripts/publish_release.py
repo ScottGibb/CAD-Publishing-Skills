@@ -14,9 +14,9 @@ from publisher_support import (
 )
 
 SETTINGS = {
-    "thingiverse": ("category", "token_file", "thing_id", "state"),
-    "printables": ("profile_dir", "ui_map", "resume_url", "state", "headed"),
-    "youtube": ("client_secrets", "token_path", "session_path", "video_id", "state"),
+    "thingiverse": ("category", "config", "profile_dir", "ui_map", "sections", "resume_url", "thing_id", "state", "headed", "channel"),
+    "printables": ("profile_dir", "ui_map", "resume_url", "state", "headed", "channel"),
+    "youtube": ("config", "client_secrets", "token_path", "session_path", "video_id", "state"),
 }
 
 
