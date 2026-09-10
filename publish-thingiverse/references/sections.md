@@ -1,6 +1,6 @@
 # Native Thingiverse sections
 
-The Python adapter uses the real **Add Print Settings**, **Add Post Printing** and **Add Section** controls. It fills native cards rather than adding headings to the Summary. A section plan can be supplied with `--sections /absolute/release/thingiverse-sections.json`, or included as `publication.thingiverse_sections` before preparing the immutable manifest. Do not edit an existing manifest in place.
+The Python adapter uses the real **Add Print Settings**, **Add Post Printing** and **Add Section** controls. It fills native cards rather than adding headings to the Summary. The Summary uses the release description without an appended licence block; the dedicated licence field is still selected and verified. A section plan can be supplied with `--sections /absolute/release/thingiverse-sections.json`, or included as `publication.thingiverse_sections` before preparing the immutable manifest. Do not edit an existing manifest in place.
 
 ## Content plan
 

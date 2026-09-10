@@ -177,14 +177,14 @@ def validate_map(mapping, release, category=None):
 
 def expected_fields(release, mapping):
     data = release.plan["thingiverse"]
-    result = {"title": data["title"], "description": data["description"]}
+    # The licence is selected and verified in Thingiverse's dedicated field.
+    # Omit only the generated trailing licence block from legacy listing copy.
+    result = {
+        "title": data["title"],
+        "description": data["description"].rsplit("\n\n## Licence\n\n", 1)[0],
+    }
     if mapping.get("native_sections"):
-        licence = data["description"].split("\n\n## Licence\n\n", 1)[-1]
-        result["description"] = (
-            release.manifest["publication"]["description"]
-            + "\n\n## Licence\n\n"
-            + licence
-        )
+        result["description"] = release.manifest["publication"]["description"]
         return result
     post_printing = data.get("post_printing", {}).get("description", "")
     if "post_printing" in mapping["fields"]:

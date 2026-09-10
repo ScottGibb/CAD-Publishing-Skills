@@ -286,11 +286,8 @@ def verify_sections(page, data, persisted=True):
         if settings.get(key) and settings[key] not in selected:
             raise PublishingError(f"Saved print setting differs: {key}")
     for key in ("rafts", "supports"):
-        if (
-            key in settings
-            and not radio_selected(
-                radio_for(card, key, "Yes" if settings[key] else "No")
-            )
+        if key in settings and not radio_selected(
+            radio_for(card, key, "Yes" if settings[key] else "No")
         ):
             raise PublishingError(f"Saved print setting differs: {key}")
     if settings.get("material"):

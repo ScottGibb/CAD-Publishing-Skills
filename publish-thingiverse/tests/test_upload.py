@@ -113,6 +113,16 @@ class ThingiverseTests(unittest.TestCase):
         self.assertIn(
             "Slide parts together", self.page.get_by_label("Description").input_value()
         )
+        description = self.page.get_by_label("Description").input_value()
+        self.assertNotIn("## Licence", description)
+        self.assertNotIn("CC BY 4.0", description)
+        self.assertEqual(self.page.get_by_label("License").input_value(), "cc")
+        self.assertEqual(
+            tv.expected_fields(self.release, {**MAP, "native_sections": True})[
+                "description"
+            ],
+            self.release.manifest["publication"]["description"],
+        )
         record = json.loads((self.folder / "publication-record.json").read_text())
         self.assertEqual(record["thingiverse"]["visibility"], "draft")
         self.assertFalse(any("api.thingiverse.com" in url for url in self.requests))
