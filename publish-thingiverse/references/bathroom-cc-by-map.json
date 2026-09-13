@@ -6,27 +6,55 @@
   "create_url": "https://www.thingiverse.com/thing:0/edit",
   "editor_url": "https://www.thingiverse.com/thing:{id}/edit",
   "tag_mode": "async-select",
-  "tag_items": {"css": "#searchInfo [class*=InfoBadge__infoBadge--]"},
-  "user_checkboxes": [{"label": "Terms & Conditions"}],
+  "tag_items": { "css": "#searchInfo [class*=InfoBadge__infoBadge--]" },
+  "user_checkboxes": [{ "label": "Terms & Conditions" }],
   "fields": {
-    "title": {"placeholder": "Enter a name for your Thing"},
-    "description": {"placeholder": "Share more information and instructions for your Thing"},
-    "tags": {"css": "#searchInfo input[role=combobox]"}
+    "title": { "placeholder": "Enter a name for your Thing" },
+    "description": {
+      "placeholder": "Share more information and instructions for your Thing"
+    },
+    "tags": { "css": "#searchInfo input[role=combobox]" }
   },
   "choices": [
-    {"field": "category", "locator": {"role": "button", "name": "Household"}, "verify": {"css": "#category button[class*=FilterButton__selected--]:has-text('Bathroom')"}, "expected": "Bathroom"},
-    {"field": "category", "locator": {"role": "button", "name": "Bathroom"}, "verify": {"css": "#category button[class*=FilterButton__selected--]:has-text('Bathroom')"}, "expected": "Bathroom"},
-    {"field": "license", "locator": {"css": "#legal input[role=combobox]"}, "verify": {"css": "#legal .react-select__single-value"}, "expected": "Creative Commons - Attribution"},
-    {"field": "license", "locator": {"role": "option", "name": "Creative Commons - Attribution"}, "verify": {"css": "#legal .react-select__single-value"}, "expected": "Creative Commons - Attribution"}
+    {
+      "field": "category",
+      "locator": { "role": "button", "name": "Household" },
+      "verify": {
+        "css": "#category button[class*=FilterButton__selected--]:has-text('Bathroom')"
+      },
+      "expected": "Bathroom"
+    },
+    {
+      "field": "category",
+      "locator": { "role": "button", "name": "Bathroom" },
+      "verify": {
+        "css": "#category button[class*=FilterButton__selected--]:has-text('Bathroom')"
+      },
+      "expected": "Bathroom"
+    },
+    {
+      "field": "license",
+      "locator": { "css": "#legal input[role=combobox]" },
+      "verify": { "css": "#legal .react-select__single-value" },
+      "expected": "Creative Commons - Attribution"
+    },
+    {
+      "field": "license",
+      "locator": { "role": "option", "name": "Creative Commons - Attribution" },
+      "verify": { "css": "#legal .react-select__single-value" },
+      "expected": "Creative Commons - Attribution"
+    }
   ],
   "uploads": {
-    "file": {"css": "input[class*=FileDrop__fileDropInput--]"},
-    "image": {"css": "input[class*=FileDrop__fileDropInput--]"}
+    "file": { "css": "input[class*=FileDrop__fileDropInput--]" },
+    "image": { "css": "input[class*=FileDrop__fileDropInput--]" }
   },
   "uploaded_items": {
-    "file": {"css": "[class*=HighlightListItem__highlightListItemTitle--]"},
-    "image": {"css": "[class*=HighlightListItem__highlightListItemTitle--]"}
+    "file": { "css": "[class*=HighlightListItem__highlightListItemTitle--]" },
+    "image": { "css": "[class*=HighlightListItem__highlightListItemTitle--]" }
   },
-  "save_draft": {"role": "button", "name": "Save Thing & view"},
-  "draft_marker": {"text": "This Thing has not been published! Other people won't be able to see it."}
+  "save_draft": { "role": "button", "name": "Save Thing & view" },
+  "draft_marker": {
+    "text": "This Thing has not been published! Other people won't be able to see it."
+  }
 }
