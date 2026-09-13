@@ -2,7 +2,6 @@
 
 ## [0.2.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/v0.1.0...v0.2.0) (2026-09-13)
 
-
 ### Features
 
 * add GCODE Review stage ([ab90dd1](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/ab90dd19d7d2c81b75d657965068774bf5e6036f))
