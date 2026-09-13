@@ -1,6 +1,6 @@
 [project]
 name = "prepare-3d-model-release"
-version = "0.1.0"
+version = "0.2.0"
 description = "Prepare and validate versioned 3D model release packages"
 requires-python = ">=3.11"
 dependencies = []
