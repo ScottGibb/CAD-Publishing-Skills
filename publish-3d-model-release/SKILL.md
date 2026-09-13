@@ -9,6 +9,8 @@ Use a `release-manifest.json` produced by `$prepare-3d-model-release`. Run the P
 
 ## Workflow
 
+For releases containing G-code, check the [user review gate](../prepare-3d-model-release/references/slicing.md#user-review-gate) before continuing to packaging or uploads. Require actual user approval for the current STL, configuration and G-code hashes, including reused releases. If approval is missing or the files changed, show the G-code review and pause. An offline preflight may diagnose the release while awaiting approval, but passing validation is not approval. Preserve existing remote uploads while a revised slice awaits review.
+
 1. From this directory run `uv run --locked scripts/publish_release.py --manifest <manifest>` for a compact offline preflight. Do not print full plans or load script source during normal use.
 2. Read only the needed platform skill: [Thingiverse](../publish-thingiverse/SKILL.md), [Printables](../publish-printables/SKILL.md), or [YouTube](../publish-youtube/SKILL.md). See [account setup](references/account-setup.md) for credentials and the coordinator configuration.
 3. Run `uv run --locked scripts/publish_release.py --manifest <manifest> --config <settings.json> --execute` to invoke the platform scripts. Use `--platform thingiverse`, `--platform printables`, or `--platform youtube` to narrow a run. Credentials are file paths or environment values, never pasted into chat.

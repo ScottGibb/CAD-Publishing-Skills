@@ -7,6 +7,8 @@ description: Prepare a validated Printables manual-upload package with paste-rea
 
 Use this skill after a release manifest has been prepared. It creates a browser-free upload packet so the user can complete the final Printables form manually.
 
+Before packaging a release containing G-code, follow the [user review gate](../prepare-3d-model-release/references/slicing.md#user-review-gate). Confirm that the user reviewed and approved the actual G-code and its orientation for the current file hashes. This also applies to reused G-code and existing packets. If approval is missing or invalidated by changed files, show the review and pause before continuing. Do not infer approval from a valid manifest or a general upload request.
+
 Run from this skill directory:
 
 ```bash
