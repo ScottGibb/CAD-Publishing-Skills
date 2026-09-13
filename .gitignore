@@ -11,3 +11,4 @@ publication-record.lock
 *token*.txt
 *client-secret*.json
 youtube-upload-*.json
+megalinter-reports/
