@@ -7,7 +7,7 @@ From this skill directory:
 ```bash
 uv sync --locked
 uv run --locked scripts/upload_thingiverse.py login --profile-dir /absolute/private/thingiverse-profile
-uv run --locked scripts/upload_thingiverse.py inspect --profile-dir /absolute/private/thingiverse-profile
+uv run --locked scripts/upload_thingiverse.py inspect --headed --profile-dir /absolute/private/thingiverse-profile
 ```
 
 `login` opens ordinary Chrome at `https://www.thingiverse.com/`, without automation or debugging flags. The user signs in, completes any checkpoint, returns to Thingiverse and presses Enter in the terminal. Only this helper's dedicated Chrome process is closed. The command does not claim authentication succeeded.
@@ -15,6 +15,8 @@ uv run --locked scripts/upload_thingiverse.py inspect --profile-dir /absolute/pr
 `inspect` uses the saved profile and reports page title, relevant navigation and form controls without passwords, input values, cookies or screenshots. If a checkpoint or access denial remains, stop and ask the user to resolve it in normal Chrome. Do not automate Google sign-in or add stealth settings. `--headed` shows an inspection; `--channel chromium` is optional but does not solve an account-security restriction.
 
 ## Establish the live editor
+
+Use `--headed` for live inspection and upload. On 13 September 2026, headless Chrome returned HTTP 403 both before and after normal sign-in, while visible Chrome with the same dedicated profile loaded the signed-in homepage and upload editor successfully. The HTTP error alone did not establish a login failure or a security challenge. If the visible browser also reports an access denial or challenge, stop for the user as described above.
 
 Follow the site's observed upload link and pass it to `inspect --url <observed-url>`. On 10 September 2026, the signed-in **Create → Upload a Thing / Remix** menu linked to `https://www.thingiverse.com/thing:0/edit`; `/thing:create` was incorrect. Verify navigation again if the site changes. A user-authorized test draft was saved and reopened, verifying 8 model/document files, 4 gallery images, 10 tags, category, licence and unpublished status. The initial rejected save was recovered on that same authorized test workflow; the original listing was not altered.
 
@@ -27,7 +29,7 @@ For a different category or licence, save an adapted JSON map with:
 - `fields`: locators for `title`, `description`, `tags`, and optional `post_printing`.
 - `choices`: category/licence steps with `field`, `locator`, `verify`, and `expected` or `checked: true`. Use `option_label` for a native select, `check: true` for a checkbox, or an inspected click otherwise.
 - `uploads` and `uploaded_items`: `file` and `image` locators. The latter select exact filenames; optional `name_attribute` reads an inspected attribute instead of text.
-- `tag_mode`: `chips` (default), `async-select`, or `comma-separated`. The first two require `tag_items`. The current Thingiverse picker uses `async-select`: wait for an exact matching search result before clicking, then verify its chip. Pressing Enter immediately can silently lose tags. A missing exact match stops for inspection rather than selecting a different tag.
+- `tag_mode`: `chips` (default), `async-select`, or `comma-separated`. The first two require `tag_items`. The current Thingiverse picker uses `async-select`: wait for an exact matching search result or the exact `Create "<tag>"` option before clicking, then verify its chip. Pressing Enter immediately can silently lose tags. If neither exact option appears, stop for inspection rather than selecting a different tag.
 - `save_draft` and `draft_marker`: an unpublished save action and a visible saved-page draft marker. For a generic Save label, also map `unpublished_marker` proving unpublished state. The script never clicks Publish.
 - Optional `open_editor`: safe navigation controls needed to reveal the form.
 - `user_checkboxes`: consent checkboxes that require user authorization. By default, `--headed` brings them into view and pauses **before uploading**. When the user explicitly authorizes this draft's Thingiverse upload terms, `--accept-upload-terms` checks the exact `{"label":"Terms & Conditions"}` control. Other consent and security checks are not covered by this flag; it is not stored as a standing config preference.

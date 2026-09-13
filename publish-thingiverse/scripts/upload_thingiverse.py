@@ -5,10 +5,9 @@ import argparse
 import re
 import sys
 import time
+import tomllib
 from pathlib import Path
 from urllib.parse import urlparse
-
-import tomllib
 
 sys.path.insert(
     0, str(Path(__file__).resolve().parents[2] / "publish-3d-model-release" / "scripts")
@@ -272,6 +271,14 @@ def fill_tags(page, mapping, release):
                 option = page.get_by_role("option").filter(
                     has=page.get_by_text(
                         re.compile("^" + re.escape(tag) + "$", re.IGNORECASE)
+                    )
+                )
+                option = option.or_(
+                    page.get_by_role(
+                        "option",
+                        name=re.compile(
+                            '^Create "' + re.escape(tag) + '"$', re.IGNORECASE
+                        ),
                     )
                 )
                 option.wait_for(state="visible")

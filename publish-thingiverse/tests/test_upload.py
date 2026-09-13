@@ -57,6 +57,33 @@ MAP = {
 
 
 class ThingiverseTests(unittest.TestCase):
+    def test_async_tags_accept_exact_create_option_and_verify_chip(self):
+        self.page.set_content("""
+            <label>Tags<input id="tags"></label><div id="tag-items"></div>
+            <div id="options"></div>
+            <script>
+            document.querySelector('#tags').oninput = e => {
+                const value = e.target.value;
+                const option = document.createElement('div');
+                option.setAttribute('role', 'option');
+                option.textContent = 'Create "' + value + '"';
+                option.onclick = () => {
+                    const chip = document.createElement('span');
+                    chip.textContent = value;
+                    document.querySelector('#tag-items').append(chip);
+                    document.querySelector('#options').replaceChildren();
+                };
+                document.querySelector('#options').replaceChildren(option);
+            };
+            </script>
+        """)
+        mapping = {**MAP, "tag_mode": "async-select"}
+        tv.fill_tags(self.page, mapping, self.release)
+        self.assertEqual(
+            self.page.locator("#tag-items span").all_text_contents(),
+            self.release.plan["thingiverse"]["tags"],
+        )
+
     @classmethod
     def setUpClass(cls):
         cls.playwright = sync_playwright().start()
