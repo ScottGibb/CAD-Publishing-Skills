@@ -92,6 +92,36 @@ class PrintablesTests(unittest.TestCase):
             ["towel-rack", "bathroom"],
         )
 
+    def test_manual_package_contains_copy_and_grouped_upload_files(self):
+        output = self.folder / "printables-manual-upload"
+        before = self.release.path.read_bytes()
+        result = pp._manual_package(self.release, output)
+        self.assertEqual(result["status"], "created")
+        self.assertTrue((output / "UPLOAD.md").is_file())
+        self.assertEqual(
+            (output / "content" / "tags.txt").read_text(), "towel-rack\nbathroom\n"
+        )
+        description = (output / "content" / "description.md").read_text()
+        self.assertIn("A printable towel rack.", description)
+        self.assertNotIn("## Licence", description)
+        self.assertEqual(
+            sorted(path.name for path in (output / "model-files").iterdir()),
+            ["assembly.step", "part.stl"],
+        )
+        self.assertEqual(
+            (output / "print-files" / "part.gcode").read_bytes(), b"G1 X1\n"
+        )
+        self.assertIn("file-descriptions.md", result["content"][-1])
+        self.assertIn("model-files", (output / "UPLOAD.md").read_text())
+        rendered = pp._manual_markdown(result)
+        self.assertIn("| Field | File | Link |", rendered)
+        self.assertIn("| Folder | Contents | Link |", rendered)
+        self.assertTrue((output / "checksums.sha256").is_file())
+        self.assertEqual(before, self.release.path.read_bytes())
+        reused = pp._manual_package(self.release, output)
+        self.assertEqual(reused["status"], "already-exists")
+        self.assertIn("file-descriptions.md", reused["content"][-1])
+
     def test_inspection_uses_patchright_without_playwright(self):
         with patch.dict(sys.modules, {"playwright.sync_api": None}):
             with patch.object(pp, "emit") as report:

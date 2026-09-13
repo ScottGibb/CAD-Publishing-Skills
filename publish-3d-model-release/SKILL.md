@@ -1,6 +1,6 @@
 ---
 name: publish-3d-model-release
-description: Coordinate separate Thingiverse, Printables and YouTube Python publishing skills from one validated CAD release manifest. Use for a complete release with draft model listings, Printables-only G-code and an optional private video.
+description: Coordinate Thingiverse drafts, Printables manual upload packages and private YouTube uploads from one validated CAD release manifest.
 ---
 
 # Publish 3D Model Release
@@ -12,9 +12,9 @@ Use a `release-manifest.json` produced by `$prepare-3d-model-release`. Run the P
 1. From this directory run `uv run --locked scripts/publish_release.py --manifest <manifest>` for a compact offline preflight. Do not print full plans or load script source during normal use.
 2. Read only the needed platform skill: [Thingiverse](../publish-thingiverse/SKILL.md), [Printables](../publish-printables/SKILL.md), or [YouTube](../publish-youtube/SKILL.md). See [account setup](references/account-setup.md) for credentials and the coordinator configuration.
 3. Run `uv run --locked scripts/publish_release.py --manifest <manifest> --config <settings.json> --execute` to invoke the platform scripts. Use `--platform thingiverse`, `--platform printables`, or `--platform youtube` to narrow a run. Credentials are file paths or environment values, never pasted into chat.
-4. Read the compact results and `publication-record.json`. The scripts verify remote state, preserve other platforms' records and reuse local receipts. Resolve an actionable error without restarting completed uploads. A missing login or editor map is not a verified publication.
+4. Read the compact results and `publication-record.json`. The Printables branch creates a browser-free manual upload package and reports `ready-for-manual-upload`; Thingiverse and YouTube retain their remote verification and receipt behavior. Resolve an actionable error without restarting completed uploads.
 
-Thingiverse and Printables use Python Playwright adapters with reusable inspected editor maps; initial login and mapping remain required. YouTube uses its Data API. Routine publishing does not use the Computer Use skill or screenshots. Login starts in normal Chrome at each site's homepage; the user handles authentication and checkpoints. Inspect the actual upload links before configuring a map. If an adapter fails, inspect only the affected controls and repair the mapping. Do not silently start a model-directed clicking workflow or treat fixture tests as live verification.
+Thingiverse uses a Python Playwright adapter with a reusable inspected editor map. Printables creates a manual upload package because its automated browser route is blocked by an HTTP 403 security checkpoint. YouTube uses its Data API. Routine publishing does not use the Computer Use skill or screenshots. The user completes the final Printables form and saves it as a draft manually; Thingiverse login and checkpoints remain user actions. Do not silently start a model-directed clicking workflow or treat fixture tests as live verification.
 
 For Thingiverse native print settings, post-printing photos and custom assembly/drawing/video sections, pass a `thingiverse.sections` content-plan path in coordinator settings or prepare `publication.thingiverse_sections` in the manifest. Read the Thingiverse skill's section reference for the schema. Changes to an existing draft use its direct `--update-sections` command only when requested; default reruns verify without editing.
 

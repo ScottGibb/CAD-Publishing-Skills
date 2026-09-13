@@ -15,7 +15,7 @@ from publisher_support import (
 
 SETTINGS = {
     "thingiverse": ("category", "config", "profile_dir", "ui_map", "sections", "resume_url", "thing_id", "state", "headed", "channel"),
-    "printables": ("profile_dir", "ui_map", "resume_url", "state", "headed", "channel"),
+    "printables": ("output_dir", "format"),
     "youtube": ("config", "client_secrets", "token_path", "session_path", "video_id", "state"),
 }
 
@@ -29,9 +29,11 @@ def command(platform, release, settings, execute=False):
         "--project",
         str(skill),
         str(skill / "scripts" / f"upload_{platform}.py"),
-        "--manifest",
-        str(release.path),
     ]
+    if platform == "printables":
+        args.insert(2, "--no-dev")
+        args.append("package")
+    args.extend(("--manifest", str(release.path)))
     if set(settings) - set(SETTINGS[platform]):
         raise PublishingError(
             f"Unknown {platform} setting; see references/account-setup.md"
@@ -73,6 +75,7 @@ def main(argv=None):
             raise PublishingError(f"Configuration lacks {platform}")
     # Validate every configured command before the first external write.
     failed = []
+    manual_platforms = []
     for platform in platforms:
         result = subprocess.run(
             command(platform, release, config[platform]),
@@ -81,9 +84,13 @@ def main(argv=None):
         )
         if result.returncode:
             failed.append(platform)
+        elif platform == "printables":
+            manual_platforms.append(platform)
     if failed or not args.execute:
         return 2 if failed else 0
     for platform in platforms:
+        if platform == "printables":
+            continue
         result = subprocess.run(
             command(platform, release, config[platform], execute=True),
             check=False,
@@ -105,8 +112,11 @@ def main(argv=None):
             if failed
             else "processing"
             if pending
+            else "ready-for-manual-upload"
+            if manual_platforms
             else "completed",
             "failed_platforms": failed,
+            "manual_platforms": manual_platforms,
             "pending_platforms": pending,
             "record": str(record_path),
         }
