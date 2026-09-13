@@ -3,7 +3,7 @@ name = "publish-printables"
 version = "0.1.0"
 description = "Printables draft uploads using Python browser automation"
 requires-python = ">=3.11"
-dependencies = ["playwright>=1.55,<2"]
+dependencies = ["patchright>=1.55,<2"]
 
 [dependency-groups]
 dev = ["ruff>=0.12", "pyyaml>=6"]

@@ -5,7 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from playwright.sync_api import sync_playwright
+from patchright.sync_api import TimeoutError as BrowserTimeout
+from patchright.sync_api import sync_playwright
 
 sys.path.insert(
     0, str(Path(__file__).resolve().parents[2] / "publish-3d-model-release" / "tests")
@@ -91,6 +92,21 @@ class PrintablesTests(unittest.TestCase):
             ["towel-rack", "bathroom"],
         )
 
+    def test_inspection_uses_patchright_without_playwright(self):
+        with patch.dict(sys.modules, {"playwright.sync_api": None}):
+            with patch.object(pp, "emit") as report:
+                self.assertEqual(pp.inspect_browser(self.page, pp.ORIGIN + "/"), 0)
+            self.assertIn("controls", report.call_args.args[0])
+
+    def test_inspection_reports_patchright_render_timeout(self):
+        with (
+            patch.object(
+                self.page, "wait_for_function", side_effect=BrowserTimeout("timed out")
+            ),
+            self.assertRaisesRegex(pp.PublishingError, "did not finish rendering"),
+        ):
+            pp.inspect_browser(self.page, pp.ORIGIN + "/")
+
     def test_wrong_save_mapping_cannot_publish(self):
         self.page.goto(pp.CREATE_URL)
         with self.assertRaisesRegex(pp.PublishingError, "not a draft operation"):
@@ -125,6 +141,31 @@ class PrintablesTests(unittest.TestCase):
         mapping["choices"] = []
         with self.assertRaisesRegex(pp.PublishingError, "verified category"):
             pp.validate_map(mapping, self.release)
+
+    def test_blocked_inspection_reports_before_waiting_and_does_not_retry(self):
+        requests = []
+
+        def blocked(route):
+            requests.append(route.request.url)
+            route.fulfill(
+                status=403,
+                content_type="text/html",
+                body="<title>Just a moment...</title><p>Security checkpoint</p>",
+            )
+
+        self.page.route(pp.ORIGIN + "/", blocked)
+        with patch.object(pp, "emit") as report:
+
+            def user_finishes_review(_prompt):
+                self.assertFalse(self.page.is_closed())
+                self.assertEqual(self.page.title(), "Just a moment...")
+                self.assertIn("HTTP 403", report.call_args.args[0]["error"])
+
+            with patch("builtins.input", side_effect=user_finishes_review) as pause:
+                status = pp.inspect_browser(self.page, pp.ORIGIN + "/", keep_open=True)
+        self.assertEqual(status, 2)
+        self.assertEqual(requests, [pp.ORIGIN + "/"])
+        pause.assert_called_once()
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ The aim is to reduce repeated agent context and computer-use interactions: valid
 | [prepare-3d-model-release](prepare-3d-model-release/SKILL.md) | Prepare assets, listing copy and an immutable release manifest | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
 | [publish-3d-model-release](publish-3d-model-release/SKILL.md) | Preflight and coordinate the selected publishers | Python subprocesses in separate locked `uv` environments |
 | [publish-thingiverse](publish-thingiverse/SKILL.md) | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens |
-| [publish-printables](publish-printables/SKILL.md) | Create and verify a draft, including Printables-only G-code | Python Playwright with an inspected editor map |
+| [publish-printables](publish-printables/SKILL.md) | Create and verify a draft, including Printables-only G-code | Python Patchright with an inspected editor map |
 | [publish-youtube](publish-youtube/SKILL.md) | Upload or resume a private video and verify its metadata | YouTube Data API with OAuth and resumable transfer |
 
 Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Each skill has its own `SKILL.md`, `pyproject.toml` and `uv.lock`.
@@ -44,7 +44,7 @@ Already have a valid release manifest and its assets? Skip preparation and start
 - A macOS or Linux environment; the shared state locking uses POSIX `fcntl`.
 - A prepared release folder and `release-manifest.json`.
 - Account authorization for each platform being used.
-- Google Chrome for normal sign-in and the Thingiverse/Printables scripts. Optional Chromium needs a Playwright installation.
+- Google Chrome for normal sign-in and the Thingiverse/Printables scripts. Optional Chromium needs the corresponding browser installation (Patchright for Printables, Playwright for Thingiverse).
 
 Synchronize the projects you need. There is no root Python project or combined virtual environment.
 
@@ -53,7 +53,7 @@ uv sync --locked --project publish-3d-model-release
 uv sync --locked --project publish-thingiverse
 uv sync --locked --project publish-printables
 uv sync --locked --project publish-youtube
-uv run --locked --project publish-printables playwright install chromium
+uv run --locked --project publish-printables patchright install chromium
 ```
 
 For preparation, also run `uv sync --locked --project prepare-3d-model-release`. Fusion's CAD Exporter and PrusaSlicer are preparation tools, not dependencies of the upload scripts.

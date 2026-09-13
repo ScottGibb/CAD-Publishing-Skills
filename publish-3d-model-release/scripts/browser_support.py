@@ -59,9 +59,10 @@ def manual_chrome_login(profile, url, platform):
     )
 
 
-def inspect_page(page, origin, response):
-    """Report login/checkpoint failures without exposing authentication page contents."""
-    from playwright.sync_api import TimeoutError as BrowserTimeout
+def inspect_page(page, origin, response, *, timeout_error=None):
+    """Report access failures using the caller's browser timeout exception."""
+    if timeout_error is None:
+        from playwright.sync_api import TimeoutError as timeout_error
 
     if response and response.status >= 400:
         raise PublishingError(
@@ -83,7 +84,7 @@ def inspect_page(page, origin, response):
             "() => Array.from(document.querySelectorAll('a,button,input,textarea,select')).some(e => e.getClientRects().length)",
             timeout=15000,
         )
-    except BrowserTimeout:
+    except timeout_error:
         raise PublishingError(
             "The page did not finish rendering its controls; inspect in a visible browser"
         ) from None

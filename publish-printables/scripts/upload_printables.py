@@ -236,6 +236,41 @@ def run(release, state, page, mapping, resume_url=None):
     emit({"platform": "printables", "status": "verified", **result})
 
 
+def inspect_browser(page, url, pause=False, keep_open=False):
+    """Report the inspection before waiting, including a site access failure."""
+    from patchright.sync_api import TimeoutError as BrowserTimeout
+
+    status = 0
+    try:
+        response = page.goto(site_url(url, ORIGIN), wait_until="domcontentloaded")
+        if pause:
+            input(
+                "Resolve any Printables checkpoint in this window, then press Enter to inspect without uploading: "
+            )
+            response = None
+        result = {
+            "platform": "printables",
+            **inspect_page(page, ORIGIN, response, timeout_error=BrowserTimeout),
+        }
+    except Exception as error:  # Keep browser diagnostics credential-safe.
+        if not keep_open:
+            raise
+        status = 2
+        result = {
+            "platform": "printables",
+            "status": "error",
+            "error": error_text(error),
+            "next": "The browser remains open for review; no automatic retries or uploads",
+        }
+    emit(result)
+    if keep_open:
+        page.bring_to_front()
+        input(
+            "Inspection finished. Chrome will remain open for you. Press Enter here only when you want to close it; this does not retry or upload: "
+        )
+    return status
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -257,10 +292,17 @@ def main(argv=None):
         action="store_true",
         help="Pause a visible inspection for the user to handle a site checkpoint",
     )
+    parser.add_argument(
+        "--keep-open",
+        action="store_true",
+        help="Show the inspection result, then keep Chrome open for review even when access is blocked",
+    )
     parser.add_argument("--channel", choices=("chrome", "chromium"), default="chrome")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
+    if args.keep_open and (args.command != "inspect" or not sys.stdin.isatty()):
+        parser.error("--keep-open requires inspect in an interactive terminal")
     release = None
     if args.command == "draft":
         if not args.manifest:
@@ -272,7 +314,7 @@ def main(argv=None):
         if not args.execute or args.dry_run:
             result = release.summary("printables")
             result["tags"] = platform_tags(result["tags"])
-            result["adapter"] = "python-playwright"
+            result["adapter"] = "python-patchright"
             emit(result)
             return 0
         if not args.ui_map:
@@ -293,36 +335,37 @@ def main(argv=None):
         with file_lock(profile / ".publisher.lock"):
             manual_chrome_login(profile, site_url(args.url, ORIGIN), "printables")
         return 0
-    from playwright.sync_api import sync_playwright
+    from patchright.sync_api import TimeoutError as BrowserTimeout
+    from patchright.sync_api import sync_playwright
 
     with file_lock(profile / ".publisher.lock"), sync_playwright() as playwright:
         context = playwright.chromium.launch_persistent_context(
             str(profile),
             channel=args.channel,
-            headless=not (args.headed or args.pause or args.command == "login"),
+            headless=not (
+                args.headed or args.pause or args.keep_open or args.command == "login"
+            ),
             locale="en-GB",
         )
         context.set_default_timeout(15000)
         try:
             page = context.pages[0] if context.pages else context.new_page()
-            if args.command in ("login", "inspect"):
+            if args.command == "inspect":
+                return inspect_browser(page, args.url, args.pause, args.keep_open)
+            if args.command == "login":
                 response = page.goto(
                     site_url(args.url, ORIGIN), wait_until="domcontentloaded"
                 )
-                if args.command == "login":
-                    input(
-                        "Complete Printables sign-in in the opened browser, then press Enter here: "
-                    )
-                    response = None
-                elif args.pause:
-                    input(
-                        "Resolve any Printables checkpoint in this window, then press Enter to inspect without uploading: "
-                    )
-                    response = None
+                input(
+                    "Complete Printables sign-in in the opened browser, then press Enter here: "
+                )
+                response = None
                 emit(
                     {
                         "platform": "printables",
-                        **inspect_page(page, ORIGIN, response),
+                        **inspect_page(
+                            page, ORIGIN, response, timeout_error=BrowserTimeout
+                        ),
                     }
                 )
                 return 0
