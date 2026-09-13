@@ -2,7 +2,6 @@
 
 ## [0.3.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/prepare-3d-model-release-v0.2.0...prepare-3d-model-release-v0.3.0) (2026-09-13)
 
-
 ### Features
 
 * add GCODE Review stage ([ab90dd1](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/ab90dd19d7d2c81b75d657965068774bf5e6036f))
