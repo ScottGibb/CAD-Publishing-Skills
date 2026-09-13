@@ -6,13 +6,13 @@ The aim is to reduce repeated agent context and computer-use interactions: valid
 
 ## Skills
 
-| Skill | Responsibility | Implementation |
-| --- | --- | --- |
-| [prepare-3d-model-release](prepare-3d-model-release/SKILL.md) | Prepare assets, listing copy and an immutable release manifest | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
-| [publish-3d-model-release](publish-3d-model-release/SKILL.md) | Preflight and coordinate the selected publishers | Python subprocesses in separate locked `uv` environments |
-| [publish-thingiverse](publish-thingiverse/SKILL.md) | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens |
-| [publish-printables](publish-printables/SKILL.md) | Prepare paste-ready copy and grouped upload files for a manual draft | Browser-free Python package generator |
-| [publish-youtube](publish-youtube/SKILL.md) | Upload or resume a private video and verify its metadata | YouTube Data API with OAuth and resumable transfer |
+| Skill                                                         | Responsibility                                                                            | Implementation                                                                |
+|---------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [prepare-3d-model-release](prepare-3d-model-release/SKILL.md) | Prepare assets, listing copy and an immutable release manifest                            | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
+| [publish-3d-model-release](publish-3d-model-release/SKILL.md) | Preflight and coordinate the selected publishers                                          | Python subprocesses in separate locked `uv` environments                      |
+| [publish-thingiverse](publish-thingiverse/SKILL.md)           | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens                                  |
+| [publish-printables](publish-printables/SKILL.md)             | Prepare paste-ready copy and grouped upload files for a manual draft                      | Browser-free Python package generator                                         |
+| [publish-youtube](publish-youtube/SKILL.md)                   | Upload or resume a private video and verify its metadata                                  | YouTube Data API with OAuth and resumable transfer                            |
 
 Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Each skill has its own `SKILL.md`, `pyproject.toml` and `uv.lock`.
 
@@ -60,11 +60,11 @@ For preparation, also run `uv sync --locked --project prepare-3d-model-release`.
 
 ### Account setup
 
-| Platform | Required setup | Details |
-| --- | --- | --- |
-| Thingiverse | A dedicated signed-in Chrome profile, observed editor map and confirmed category | [Login and browser setup](publish-thingiverse/references/browser.md) |
-| Printables | A validated release manifest and a destination for the manual upload packet | [Manual upload skill](publish-printables/SKILL.md) |
-| YouTube | A Google OAuth Desktop client, enabled YouTube Data API and user consent | [OAuth, scopes and resumable sessions](publish-youtube/references/oauth.md) |
+| Platform    | Required setup                                                                   | Details                                                                     |
+|-------------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| Thingiverse | A dedicated signed-in Chrome profile, observed editor map and confirmed category | [Login and browser setup](publish-thingiverse/references/browser.md)        |
+| Printables  | A validated release manifest and a destination for the manual upload packet      | [Manual upload skill](publish-printables/SKILL.md)                          |
+| YouTube     | A Google OAuth Desktop client, enabled YouTube Data API and user consent         | [OAuth, scopes and resumable sessions](publish-youtube/references/oauth.md) |
 
 Store credentials, browser profiles and sensitive upload-session files outside the repository, release folder and Obsidian vault. Do not paste their contents into chat. Login and security checkpoints remain user actions. Thingiverse's upload terms can be accepted with the direct CLI's `--accept-upload-terms` only after explicit authorization for that draft; the flag does not cover other consent or security checks.
 
@@ -242,17 +242,17 @@ Remote verification checks saved metadata and visibility, not just an HTTP succe
 
 ## Release artifacts and state
 
-| Artifact | Purpose |
-| --- | --- |
-| `fusion-export.json` | Export provenance used during preparation |
-| `release-manifest.json` | Immutable metadata, asset hashes and platform-specific file declarations |
-| `listing-copy.md`, `release-summary.md` | Human-readable preparation outputs |
-| G-code and PrusaSlicer INI | Printer-specific files and reproducible slicing configuration; G-code is Printables-only |
-| `.publication-state/<platform>.json` | Local IDs, receipts and pending-action checkpoints |
-| `publication-record.json` | Verified platform URLs, visibility and current status |
-| `thingiverse-sections.json` | Optional native section content; verified names and content hash are recorded with the draft |
-| `printables-manual-upload/` | Paste-ready Markdown, tags, grouped upload files, per-file descriptions and checksums |
-| `youtube-upload-<manifest-hash>.json` | Sensitive resumable-transfer checkpoint; stored beside the token by default, outside the release |
+| Artifact                                | Purpose                                                                                          |
+|-----------------------------------------|--------------------------------------------------------------------------------------------------|
+| `fusion-export.json`                    | Export provenance used during preparation                                                        |
+| `release-manifest.json`                 | Immutable metadata, asset hashes and platform-specific file declarations                         |
+| `listing-copy.md`, `release-summary.md` | Human-readable preparation outputs                                                               |
+| G-code and PrusaSlicer INI              | Printer-specific files and reproducible slicing configuration; G-code is Printables-only         |
+| `.publication-state/<platform>.json`    | Local IDs, receipts and pending-action checkpoints                                               |
+| `publication-record.json`               | Verified platform URLs, visibility and current status                                            |
+| `thingiverse-sections.json`             | Optional native section content; verified names and content hash are recorded with the draft     |
+| `printables-manual-upload/`             | Paste-ready Markdown, tags, grouped upload files, per-file descriptions and checksums            |
+| `youtube-upload-<manifest-hash>.json`   | Sensitive resumable-transfer checkpoint; stored beside the token by default, outside the release |
 
 The legacy `create_publish_plan.py` can still write a full `publish-plan.json`. Use its `--summary` option when only a compact validation result is needed. The normal coordinator preflight does not need to write or print a full plan.
 
