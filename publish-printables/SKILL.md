@@ -22,7 +22,7 @@ The command validates the immutable manifest and every declared asset, then crea
 - `model-files/`, `images/` and `print-files/`, containing the files for each Printables upload area when that group exists.
 - `content/file-descriptions.md`, `release-manifest.json`, `checksums.sha256` and `package-record.json`.
 
-Written fields are Markdown. Tags are newline-separated in `tags.txt`, with Printables' lowercase and hyphenated tag values already applied. The command prints a Markdown table with absolute links to the folders and each file. Return that table to the user after the command completes.
+Written fields are Markdown. Write tags as one lowercase, space-separated line in `tags.txt` for direct copy/paste into Printables. Split phrases and hyphenated values into individual words and remove duplicate tags, preserving their first occurrence. Do not use hyphens or one tag per line. The command prints a Markdown table with absolute links to the folders and each file. Return that table to the user after the command completes.
 
 Use `--output-dir` to choose another destination. An existing packet for the same manifest is reused; a packet for a different manifest is rejected rather than overwritten. The source release and manifest are never modified.
 

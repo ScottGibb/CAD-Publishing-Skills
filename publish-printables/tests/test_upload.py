@@ -89,7 +89,7 @@ class PrintablesTests(unittest.TestCase):
         )
         self.assertEqual(
             self.page.locator("#tag-items span").all_text_contents(),
-            ["towel-rack", "bathroom"],
+            ["towel", "rack", "bathroom"],
         )
 
     def test_manual_package_contains_copy_and_grouped_upload_files(self):
@@ -99,7 +99,7 @@ class PrintablesTests(unittest.TestCase):
         self.assertEqual(result["status"], "created")
         self.assertTrue((output / "UPLOAD.md").is_file())
         self.assertEqual(
-            (output / "content" / "tags.txt").read_text(), "towel-rack\nbathroom\n"
+            (output / "content" / "tags.txt").read_text(), "towel rack bathroom\n"
         )
         description = (output / "content" / "description.md").read_text()
         self.assertIn("A printable towel rack.", description)

@@ -32,7 +32,8 @@ def child_environment():
 
 
 def printables_tags(tags):
-    return list(dict.fromkeys(re.sub(r"\s+", "-", tag.strip().lower()) for tag in tags))
+    words = (word for tag in tags for word in re.split(r"[\s-]+", tag.strip().lower()))
+    return list(dict.fromkeys(word for word in words if word))
 
 
 def read_json(path):

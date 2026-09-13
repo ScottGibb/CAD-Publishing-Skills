@@ -28,7 +28,7 @@ class PublisherSupportTests(unittest.TestCase):
                 result = json.loads(output.getvalue())
                 self.assertEqual(result["mode"], "dry-run")
                 if platform == "printables":
-                    self.assertEqual(result["tags"], ["towel-rack", "bathroom"])
+                    self.assertEqual(result["tags"], ["towel", "rack", "bathroom"])
             self.assertEqual(before, path.read_bytes())
             self.assertFalse((Path(directory) / ".publication-state").exists())
             self.assertFalse((Path(directory) / "publication-record.json").exists())

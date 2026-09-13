@@ -178,7 +178,7 @@ def _manual_content(release):
         "title.md": data["title"].strip(),
         "summary.md": data["summary"].strip(),
         "description.md": publication["description"].strip(),
-        "tags.txt": "\n".join(platform_tags(data["tags"])),
+        "tags.txt": " ".join(platform_tags(data["tags"])),
         "print-settings.md": publication["print_instructions"].strip(),
     }
     assembly = publication.get("assembly_instructions", "").strip()
@@ -197,7 +197,7 @@ def _folder_rows(asset_rows):
         {
             "name": "Listing copy",
             "folder": "content",
-            "description": "Paste-ready Markdown fields and newline-separated tags.",
+            "description": "Paste-ready Markdown fields and space-separated tags.",
         }
     ]
     descriptions = {
@@ -233,8 +233,8 @@ def _write_manual_guide(root, content, asset_rows, folders):
         f"# {content['title.md'].strip()}",
         "",
         "This packet was generated from a validated release manifest.",
-        "Use the Markdown files for Printables' written fields. Add each line in "
-        "tags.txt as one tag.",
+        "Use the Markdown files for Printables' written fields. Copy the single "
+        "space-separated line in tags.txt into the tags field.",
         "",
         "## Listing copy",
         "",
