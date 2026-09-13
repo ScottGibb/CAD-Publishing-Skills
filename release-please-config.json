@@ -1,14 +1,25 @@
 {
-  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "release-type": "python",
   "separate-pull-requests": true,
+  "sequential-calls": true,
+  "bootstrap-sha": "a45504079c39d7bfe5af08f1819fee760be9aefd",
   "include-component-in-tag": true,
   "tag-separator": "-",
   "packages": {
-    "prepare-3d-model-release": {},
-    "publish-3d-model-release": {},
-    "publish-thingiverse": {},
-    "publish-printables": {},
-    "publish-youtube": {}
+    "prepare-3d-model-release": {
+      "package-name": "prepare-3d-model-release"
+    },
+    "publish-3d-model-release": {
+      "package-name": "publish-3d-model-release"
+    },
+    "publish-thingiverse": {
+      "package-name": "publish-thingiverse"
+    },
+    "publish-printables": {
+      "package-name": "publish-printables"
+    },
+    "publish-youtube": {
+      "package-name": "publish-youtube"
+    }
   }
 }
