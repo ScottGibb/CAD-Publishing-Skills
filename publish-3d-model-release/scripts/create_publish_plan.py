@@ -41,6 +41,21 @@ def verify_printables_file(item: dict) -> None:
         raise ValueError(f"Printables print file changed or is missing: {item['path']}")
 
 
+def verify_model_files(items: list[dict]) -> None:
+    if not isinstance(items, list):
+        raise ValueError("Invalid shared files in release manifest")
+    assembly_stls = [
+        item for item in items
+        if item.get("role") == "assembly-stl"
+        and Path(item.get("path", "")).suffix.lower() == ".stl"
+    ]
+    component_stls = [item for item in items if item.get("role") == "stl"]
+    if len(assembly_stls) != 1 or not component_stls:
+        raise ValueError(
+            "Release manifest must contain component STLs and exactly one assembly STL"
+        )
+
+
 def verify_slicing(manifest: dict) -> dict | None:
     slicing = manifest.get("slicing")
     if slicing is None:
@@ -91,6 +106,7 @@ def build_plan(manifest_path: Path) -> dict:
             "Project note changed since release preparation; prepare a new manifest"
         )
     folder = manifest_path.parent
+    verify_model_files(manifest["files"])
     for item in manifest["files"]:
         verify_shared_file(folder, item)
     printables_files = manifest.get("printables_files", [])

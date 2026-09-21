@@ -12,7 +12,7 @@ Use the Obsidian project note as the source of truth. Do not access excluded vau
 1. Add the [publication template](assets/publication-template.md) to the project note and complete its JSON values.
 2. Create the versioned release folder specified by `release_folder`. Keep it outside the vault when it contains binary assets.
 3. In Fusion 360, activate and save the intended design, then run the already-enabled **Export 3D Model Release** CAD Exporter. Choose an empty staging folder. The exporter writes an assembly F3D, STEP and STL, one STL per visible solid body, a transparent preview PNG, and `fusion-export.json`.
-4. Copy only the intended printable body STLs, assembly STEP, F3D archive, preview image, and `fusion-export.json` into `release_folder`, normalising their names to the `<release-name>-v<version>` convention. Do not treat the merged assembly STL as a printable component. Export the drawing PDF/PNG and any animation from Fusion separately, using the filenames declared in the Publication JSON.
+4. Copy the intended printable body STLs, the merged assembly STL, assembly STEP, F3D archive, preview image, and `fusion-export.json` into `release_folder`, normalising their names to the `<release-name>-v<version>` convention. Name the merged STL `<release-name>-v<version>-assembly.stl`; it is a shared model/source upload for Printables and Thingiverse, never a printable component or slicing input. Export the drawing PDF/PNG and any animation from Fusion separately, using the filenames declared in the Publication JSON.
 5. For an FDM release intended for Printables, complete the Publication JSON's `slicing` object and read [the PrusaSlicer workflow](references/slicing.md). Use the PrusaSlicer MCP to analyse every intended component STL, generate or load the declared slicer configuration, and slice each component separately to the exact paths declared in `printables_files`. Never slice the merged assembly STL.
 6. Verify that every intended component STL has exactly one generated G-code file, that the slicer reports success, and that the output uses the declared printer, material, nozzle, layer height, infill, support and adhesion settings. Keep the generated slicer configuration beside the G-code for reproducibility.
 7. Pause for the user's explicit confirmation of the actual sliced G-code before continuing release preparation. Show each component's toolpath preview, orientation and bed-contact face, build height, print profile and warnings; provide the G-code for inspection. Follow the [G-code review gate](references/slicing.md#user-review-gate), including for reused files. A slicer recommendation, successful slice or checksum validation is not user approval.
@@ -22,7 +22,7 @@ Use the Obsidian project note as the source of truth. Do not access excluded vau
 
 ## Required output
 
-- At least one STL, one assembly STEP, one F3D archive, and one drawing PDF.
+- At least one printable component STL, exactly one merged assembly STL, one assembly STEP, one F3D archive, and one drawing PDF. Upload the assembly STL to both Printables and Thingiverse, but never slice it.
 - A `fusion-export.json` produced by the enabled CAD Exporter, identifying the saved source design and its exported bodies or selected components.
 - Asset names begin with `<release-name>-v<version>`.
 - Use `license: "CC-BY-4.0"` with an explicit attribution name when reuse is allowed but creator credit is required. Keep `CC-BY-SA-4.0` supported only for releases that also require adaptations to use the same licence.

@@ -177,12 +177,25 @@ def main() -> int:
     if unlisted_print_files:
         raise ValueError("Print files in the release folder must be listed in printables_files: "
                          + ", ".join(path.name for path in unlisted_print_files))
-    stls = sorted(folder.glob(f"{prefix}-*.stl"))
+    assembly_stls = sorted(folder.glob(f"{prefix}-assembly.stl"))
+    stls = sorted(
+        path for path in folder.glob(f"{prefix}-*.stl")
+        if path not in assembly_stls
+    )
     steps = sorted(folder.glob(f"{prefix}-assembly.stp")) + sorted(folder.glob(f"{prefix}-assembly.step"))
     archives = sorted(folder.glob(f"{prefix}.f3d"))
     drawings = sorted(folder.glob(f"{prefix}-drawing.pdf"))
-    if not stls or len(steps) != 1 or len(archives) != 1 or len(drawings) != 1:
-        raise ValueError("Required files: one or more component STL, exactly one assembly STEP, one F3D, and one drawing PDF")
+    if (
+        not stls
+        or len(assembly_stls) != 1
+        or len(steps) != 1
+        or len(archives) != 1
+        or len(drawings) != 1
+    ):
+        raise ValueError(
+            "Required files: one or more component STL, exactly one assembly STL, "
+            "one assembly STEP, one F3D, and one drawing PDF"
+        )
     slicing_record = None
     slicing = data.get("slicing")
     if slicing and slicing["enabled"]:
@@ -220,8 +233,16 @@ def main() -> int:
         video_path = folder / video["file"]
         if not video_path.is_file():
             raise ValueError(f"Missing listed video: {video['file']}")
-    files = ([artifact(path, "stl") for path in stls] + [artifact(steps[0], "assembly-step"),
-             artifact(archives[0], "fusion-archive"), artifact(drawings[0], "drawing-pdf")] + images)
+    files = (
+        [artifact(path, "stl") for path in stls]
+        + [
+            artifact(assembly_stls[0], "assembly-stl"),
+            artifact(steps[0], "assembly-step"),
+            artifact(archives[0], "fusion-archive"),
+            artifact(drawings[0], "drawing-pdf"),
+        ]
+        + images
+    )
     printables_files = [external_artifact(path, "print-file") for path in print_file_paths]
     built_model_photos = [external_artifact(path, "built-model-photo") for path in built_photo_paths]
     duplicate_photo_names = ({item["path"] for item in files}

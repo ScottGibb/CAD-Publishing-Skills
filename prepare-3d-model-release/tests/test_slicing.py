@@ -18,6 +18,7 @@ class SlicingWorkflowTests(unittest.TestCase):
         prefix = "example-v1"
         for name, content in {
             f"{prefix}-part.stl": b"solid part\nendsolid part\n",
+            f"{prefix}-assembly.stl": b"solid assembly\nendsolid assembly\n",
             f"{prefix}-assembly.step": b"STEP",
             f"{prefix}.f3d": b"F3D",
             f"{prefix}-drawing.pdf": b"%PDF-1.4",
@@ -84,7 +85,22 @@ class SlicingWorkflowTests(unittest.TestCase):
                 manifest["slicing"]["component_outputs"],
                 [{"stl": "example-v1-part.stl", "print_file": "example-v1-part.gcode"}],
             )
+            self.assertIn(
+                {"role": "assembly-stl", "path": "example-v1-assembly.stl"},
+                [
+                    {"role": item["role"], "path": item["path"]}
+                    for item in manifest["files"]
+                ],
+            )
             self.assertEqual(manifest["slicing"]["profile"]["layer_height_mm"], 0.3)
+
+    def test_rejects_release_without_assembly_stl(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            note = self.make_release(Path(directory))
+            (Path(directory) / "example-v1" / "example-v1-assembly.stl").unlink()
+            result = self.run_builder(note)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("exactly one assembly STL", result.stderr)
 
     def test_rejects_missing_generated_gcode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

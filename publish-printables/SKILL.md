@@ -17,7 +17,7 @@ uv run --locked --no-dev scripts/upload_printables.py package \
   --format markdown
 ```
 
-The command validates the immutable manifest and every declared asset, then creates `printables-manual-upload/` beside the manifest. The packet contains:
+The command validates the immutable manifest and every declared asset, including the merged assembly STL, then creates `printables-manual-upload/` beside the manifest. The assembly STL belongs in `model-files/` alongside the component STLs and source CAD files; it does not belong in `print-files/` and must not have generated G-code. The packet contains:
 
 - `UPLOAD.md`, with the upload order, links and descriptions.
 - `content/`, with `title.md`, `summary.md`, `description.md`, print and assembly instructions, a licence selection reference and `tags.txt`.

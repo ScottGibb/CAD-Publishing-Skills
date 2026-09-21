@@ -42,6 +42,16 @@ class SlicingMetadataTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "configuration changed"):
                 MODULE.verify_slicing(manifest)
 
+    def test_requires_assembly_stl_alongside_component_stls(self) -> None:
+        MODULE.verify_model_files(
+            [
+                {"path": "part.stl", "role": "stl"},
+                {"path": "assembly.stl", "role": "assembly-stl"},
+            ]
+        )
+        with self.assertRaisesRegex(ValueError, "exactly one assembly STL"):
+            MODULE.verify_model_files([{"path": "part.stl", "role": "stl"}])
+
 
 if __name__ == "__main__":
     unittest.main()

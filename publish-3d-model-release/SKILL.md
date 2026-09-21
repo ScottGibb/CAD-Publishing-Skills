@@ -7,6 +7,8 @@ description: Coordinate Thingiverse drafts, Printables manual upload packages an
 
 Use a `release-manifest.json` produced by `$prepare-3d-model-release`. Run the Python commands with `uv`; use the three platform skills independently for single-platform requests.
 
+The shared manifest must include the merged assembly STL with role `assembly-stl`. Send it to both Printables and Thingiverse with the component STLs and source CAD files. Never include it in slicing component mappings or generate G-code from it.
+
 ## Workflow
 
 For releases containing G-code, check the [user review gate](../prepare-3d-model-release/references/slicing.md#user-review-gate) before continuing to packaging or uploads. Require actual user approval for the current STL, configuration and G-code hashes, including reused releases. If approval is missing or the files changed, show the G-code review and pause. An offline preflight may diagnose the release while awaiting approval, but passing validation is not approval. Preserve existing remote uploads while a revised slice awaits review.

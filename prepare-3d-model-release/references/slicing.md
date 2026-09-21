@@ -15,7 +15,7 @@ Do not infer a printer, nozzle or material from an unrelated prior release. Ask 
 
 ## Generate the files
 
-1. Identify only the printable component STLs in the release folder. Do not use a merged assembly STL.
+1. Identify only the printable component STLs in the release folder. Exclude the required `<release-name>-v<version>-assembly.stl`; it is uploaded to both model sites but is never a slicing input.
 2. Run the PrusaSlicer MCP mesh analysis and printability check for every component. Confirm the exported orientation is suitable; do not silently rotate a component without recording that change.
 3. Generate one PrusaSlicer INI at `config_path` using the declared printer, material, nozzle and goal. Pass the declared layer height, infill, supports and brim settings as explicit custom settings, then verify the generated configuration reflects them. If the user supplied an existing INI, preserve it and use it directly.
 4. Run the PrusaSlicer MCP slicing operation once per component STL, using the same verified configuration and the corresponding exact `printables_files` output path.

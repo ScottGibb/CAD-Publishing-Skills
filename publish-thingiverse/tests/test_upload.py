@@ -132,7 +132,7 @@ class ThingiverseTests(unittest.TestCase):
         )
         self.assertEqual(
             self.page.locator("#file-items span").all_text_contents(),
-            ["part.stl", "assembly.step"],
+            ["part.stl", "assembly.stl", "assembly.step"],
         )
         self.assertEqual(
             self.page.locator("#image-items span").inner_text(), "preview.png"

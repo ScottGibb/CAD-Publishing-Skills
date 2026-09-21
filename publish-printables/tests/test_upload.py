@@ -83,7 +83,7 @@ class PrintablesTests(unittest.TestCase):
             pp.run(self.release, state, self.page, MAP)
             pp.run(self.release, pp.State(self.release, "printables"), self.page, MAP)
         self.assertEqual(self.page.evaluate("localStorage.getItem('save-count')"), "1")
-        self.assertEqual(self.page.locator("#file-items span").count(), 2)
+        self.assertEqual(self.page.locator("#file-items span").count(), 3)
         self.assertEqual(
             self.page.locator("#print_file-items span").inner_text(), "part.gcode"
         )
@@ -106,7 +106,7 @@ class PrintablesTests(unittest.TestCase):
         self.assertNotIn("## Licence", description)
         self.assertEqual(
             sorted(path.name for path in (output / "model-files").iterdir()),
-            ["assembly.step", "part.stl"],
+            ["assembly.step", "assembly.stl", "part.stl"],
         )
         self.assertEqual(
             (output / "print-files" / "part.gcode").read_bytes(), b"G1 X1\n"
