@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-3d-model-release-v0.2.0...publish-3d-model-release-v0.2.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* add assembly stl to required list of files when doing an upload ([9c9d831](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9c9d831edaf79e7204245611767a7005146e8c86))
+
 ## [0.2.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-3d-model-release-v0.1.0...publish-3d-model-release-v0.2.0) (2026-09-13)
 
 ### Features
