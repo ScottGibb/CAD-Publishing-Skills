@@ -2,7 +2,6 @@
 
 ## [0.3.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-printables-v0.3.0...publish-printables-v0.3.1) (2026-09-21)
 
-
 ### Bug Fixes
 
 * add assembly stl to required list of files when doing an upload ([9c9d831](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9c9d831edaf79e7204245611767a7005146e8c86))
