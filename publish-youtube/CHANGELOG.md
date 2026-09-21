@@ -2,7 +2,6 @@
 
 ## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-youtube-v0.2.0...publish-youtube-v0.2.1) (2026-09-21)
 
-
 ### Bug Fixes
 
 * add assembly stl to required list of files when doing an upload ([9c9d831](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9c9d831edaf79e7204245611767a7005146e8c86))
