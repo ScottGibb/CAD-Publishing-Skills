@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-thingiverse-v0.2.0...publish-thingiverse-v0.2.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* add assembly stl to required list of files when doing an upload ([9c9d831](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9c9d831edaf79e7204245611767a7005146e8c86))
+* browser timeouts with LM Studio ([2fd4456](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/2fd44564853b94184d3c91819a1c0fd632ab0864))
+
 ## [0.2.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-thingiverse-v0.1.0...publish-thingiverse-v0.2.0) (2026-09-13)
 
 ### Features
