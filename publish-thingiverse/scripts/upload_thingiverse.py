@@ -323,11 +323,16 @@ def fill_editor(page, mapping, release):
 
 
 def wait_for_editor(page, mapping, release):
-    # The editor renders empty controls before its saved model finishes loading.
-    title = open_field(page, mapping["fields"]["title"])
-    expected_title = normalized(release.plan["thingiverse"]["title"])
-    deadline = time.monotonic() + 15
-    while normalized(field_value(title)) != expected_title:
+    # The editor renders empty controls before its saved model finishes loading,
+    # and large fields (e.g. the description) can land after smaller ones. Gate
+    # on every mapped text field, not just the title, before verifying values.
+    expected = expected_fields(release, mapping)
+    controls = {name: open_field(page, mapping["fields"][name]) for name in expected}
+    deadline = time.monotonic() + 45
+    while any(
+        normalized(field_value(controls[name])) != normalized(value)
+        for name, value in expected.items()
+    ):
         if time.monotonic() >= deadline:
             raise PublishingError("Saved Thingiverse title differs from the release")
         page.wait_for_timeout(100)
