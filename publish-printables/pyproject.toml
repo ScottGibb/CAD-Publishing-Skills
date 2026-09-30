@@ -1,6 +1,6 @@
 [project]
 name = "publish-printables"
-version = "0.3.0"
+version = "0.3.1"
 description = "Prepare Printables manual upload packages with validated release assets"
 requires-python = ">=3.11"
 dependencies = []
