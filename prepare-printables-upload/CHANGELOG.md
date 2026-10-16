@@ -6,6 +6,17 @@
 
 * Retire the `publish-printables` skill path; preserve its content and packet generator as `prepare-printables-upload`. Update CLI project paths and installed skill links.
 
+## [1.0.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/prepare-printables-upload-v0.3.0...prepare-printables-upload-v1.0.0) (2026-10-16)
+
+### ⚠ BREAKING CHANGES
+
+* **printables:** replace the publish-printables skill and uv project path with prepare-printables-upload. Preserve the content generator and route coordinator packaging to its new path.
+
+### Features
+
+* **printables:** add interactive browser upload skill ([60e39ea](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/60e39eabc5406399d861e54f1126c4cfe010e75b))
+* **printables:** deprecate publish-printables and preserve packet preparation ([7e18ff7](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/7e18ff7759d826b95c0efceea283ffcc9ccf10cb))
+
 ## [0.3.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-printables-v0.2.0...publish-printables-v0.3.0) (2026-09-13)
 
 ### Features
