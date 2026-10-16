@@ -8,7 +8,6 @@
 
 ## [1.0.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/prepare-printables-upload-v0.3.0...prepare-printables-upload-v1.0.0) (2026-10-16)
 
-
 ### ⚠ BREAKING CHANGES
 
 * **printables:** replace the publish-printables skill and uv project path with prepare-printables-upload. Preserve the content generator and route coordinator packaging to its new path.
