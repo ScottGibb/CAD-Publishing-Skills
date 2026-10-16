@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/prepare-3d-model-release-v0.3.0...prepare-3d-model-release-v0.3.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* add assembly stl to required list of files when doing an upload ([9c9d831](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9c9d831edaf79e7204245611767a7005146e8c86))
+* Thingiverse upload now uploads technical drawing as part of the gallery and technical drawing section ([9dbe466](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9dbe46691fd1ef629cc98068e855518a7066bb23))
+
 ## [0.3.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/prepare-3d-model-release-v0.3.0...prepare-3d-model-release-v0.3.1) (2026-09-30)
 
 ### Bug Fixes
