@@ -4,7 +4,9 @@ The Python adapter uses the real **Add Print Settings**, **Add Post Printing** a
 
 ## Content plan
 
-Use verified release instructions and assets. Omit unknown print settings; do not infer rafts, filament brand or colour. Printer brand and printer must exactly match Thingiverse's dropdown labels, which can differ from the release's prose (for example, `Prusa` and `I3 MK3S`). Image `file` values must be filenames of checksummed images already declared for Thingiverse. The drawing PDF stays in Thing Files; its PNG preview goes in Technical Drawing.
+Use verified release instructions and assets. Omit unknown print settings; do not infer rafts, filament brand or colour. Printer brand and printer must exactly match Thingiverse's dropdown labels, which can differ from the release's prose (for example, `Prusa` and `I3 MK3S`). Image `file` values must be filenames of checksummed images already declared for Thingiverse. The drawing PDF stays in Thing Files. Each drawing-sheet PNG (or JPEG) preview must be declared in the release image list so it is checksummed and uploaded to the gallery, and also referenced by filename and caption in the native Technical Drawing section. Use the same image in both places. A PDF link alone is not a drawing-image section.
+
+Before upload, check that every intended drawing-sheet preview is present in the manifest gallery assets and in the Technical Drawing section plan. If an image exists on disk but is absent from the manifest, correct the source Publication JSON and rebuild the release; do not edit the immutable manifest. Do not silently omit the image to make the section plan validate. After saving, reopen and verify the drawing image in the gallery and its persisted image URL and caption in Technical Drawing. Report the drawing complete only after both placements are verified.
 
 This example illustrates the schema, not default settings for other projects. Replace the settings, text, filenames and existing video URL with the actual release content:
 

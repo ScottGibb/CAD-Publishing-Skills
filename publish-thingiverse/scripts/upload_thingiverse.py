@@ -247,6 +247,7 @@ def fill_metadata(page, mapping, release):
         else:
             safe_click(target)
     fill_tags(page, mapping, release)
+    open_field(page, mapping["fields"]["title"]).click()
 
 
 def fill_tags(page, mapping, release):
@@ -296,6 +297,9 @@ def fill_tags(page, mapping, release):
                             "A tag was not added; inspect the tag picker before saving"
                         )
                     page.wait_for_timeout(100)
+
+    # The async tag menu can remain open and intercept later section clicks.
+    tags.press("Escape")
 
 
 def upload_assets(page, mapping, assets):
