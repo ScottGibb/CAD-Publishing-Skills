@@ -7,7 +7,7 @@ The aim is to reduce repeated agent context and computer-use interactions: valid
 ## Skills
 
 | Skill                                                           | Responsibility                                                                            | Implementation                                                                |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+|-----------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | [prepare-3d-model-release](prepare-3d-model-release/SKILL.md)   | Prepare assets, listing copy and an immutable release manifest                            | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
 | [publish-3d-model-release](publish-3d-model-release/SKILL.md)   | Preflight and coordinate the selected publishers                                          | Python subprocesses in separate locked `uv` environments                      |
 | [publish-thingiverse](publish-thingiverse/SKILL.md)             | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens                                  |
@@ -62,7 +62,7 @@ For preparation, also run `uv sync --locked --project prepare-3d-model-release`.
 ### Account setup
 
 | Platform    | Required setup                                                                   | Details                                                                                                 |
-| ----------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+|-------------|----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | Thingiverse | A dedicated signed-in Chrome profile, observed editor map and confirmed category | [Login and browser setup](publish-thingiverse/references/browser.md)                                    |
 | Printables  | A validated release packet and a signed-in interactive browser                   | [Preparation](prepare-printables-upload/SKILL.md), [browser upload](upload-printables-browser/SKILL.md) |
 | YouTube     | A Google OAuth Desktop client, enabled YouTube Data API and user consent         | [OAuth, scopes and resumable sessions](publish-youtube/references/oauth.md)                             |
@@ -244,7 +244,7 @@ Remote verification checks saved metadata and visibility, not just an HTTP succe
 ## Release artifacts and state
 
 | Artifact                                | Purpose                                                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------ |
+|-----------------------------------------|--------------------------------------------------------------------------------------------------|
 | `fusion-export.json`                    | Export provenance used during preparation                                                        |
 | `release-manifest.json`                 | Immutable metadata, asset hashes and platform-specific file declarations                         |
 | `listing-copy.md`, `release-summary.md` | Human-readable preparation outputs                                                               |
