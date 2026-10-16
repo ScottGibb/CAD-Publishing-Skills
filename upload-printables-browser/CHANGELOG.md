@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/upload-printables-browser-v0.1.0...upload-printables-browser-v0.2.0) (2026-10-16)
+
+
+### Features
+
+* **printables:** add interactive browser upload skill ([60e39ea](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/60e39eabc5406399d861e54f1126c4cfe010e75b))
+
 ## 0.1.0
 
 ### Features

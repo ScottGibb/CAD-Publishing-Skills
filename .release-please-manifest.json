@@ -4,5 +4,5 @@
   "publish-thingiverse": "0.2.0",
   "publish-youtube": "0.2.0",
   "prepare-printables-upload": "0.3.0",
-  "upload-printables-browser": "0.1.0"
+  "upload-printables-browser": "0.2.0"
 }
