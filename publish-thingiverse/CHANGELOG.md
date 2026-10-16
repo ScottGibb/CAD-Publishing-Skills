@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-thingiverse-v0.2.1...publish-thingiverse-v0.2.2) (2026-10-16)
+
+
+### Bug Fixes
+
+* Thingiverse upload now uploads technical drawing as part of the gallery and technical drawing section ([9dbe466](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9dbe46691fd1ef629cc98068e855518a7066bb23))
+
 ## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-thingiverse-v0.2.0...publish-thingiverse-v0.2.1) (2026-09-30)
 
 ### Bug Fixes
