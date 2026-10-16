@@ -1,0 +1,4 @@
+interface:
+  display_name: "Upload Printables in Browser"
+  short_description: "Upload prepared content and verify a Printables draft"
+  default_prompt: "Use $upload-printables-browser to upload my prepared release to Printables and verify the saved draft."

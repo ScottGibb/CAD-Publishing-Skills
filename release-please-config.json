@@ -20,6 +20,10 @@
     },
     "prepare-printables-upload": {
       "package-name": "prepare-printables-upload"
+    },
+    "upload-printables-browser": {
+      "package-name": "upload-printables-browser",
+      "release-type": "simple"
     }
   }
 }

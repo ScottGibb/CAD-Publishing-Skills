@@ -5,7 +5,7 @@ description: Prepare a validated Printables manual-upload package with paste-rea
 
 # Prepare Printables Upload
 
-Use this skill after a release manifest has been prepared. It creates the browser-free content and file packet for a separate upload workflow. It does not upload content or save a remote listing.
+Use this skill after a release manifest has been prepared. It creates the browser-free content and file packet for [upload-printables-browser](../upload-printables-browser/SKILL.md). It does not upload content or save a remote listing.
 
 This replaces the deprecated `publish-printables` packet skill; existing package commands now run from `prepare-printables-upload`.
 
@@ -30,8 +30,8 @@ Written fields are Markdown. Write tags as one lowercase, space-separated line i
 
 Use `--output-dir` to choose another destination. An existing packet for the same manifest is reused; a packet for a different manifest is rejected rather than overwritten. The source release and manifest are never modified.
 
-The former `login`, `inspect` and `draft` browser commands remain only as recorded diagnostics. Printables' automated browser route is not live-verified: the site returned HTTP 403 at its security checkpoint even though the dedicated normal Chrome profile retained the sign-in. Do not retry the checkpoint, change browser fingerprints, extract tokens or present the browser adapter as a working upload path. Read [browser status](references/browser.md) when that history is relevant.
+The former scripted `login`, `inspect` and `draft` commands remain only as recorded diagnostics. Do not use them for uploads. After preparing the packet, use [upload-printables-browser](../upload-printables-browser/SKILL.md) for the interactive upload, presentation choices and saved-draft verification. The historical HTTP 403 applies to the scripted route; it does not establish that the interactive browser is blocked.
 
-Do not make a listing public. The user reviews the generated copy, selects the appropriate category and licence, uploads the folders, and saves the model as a draft manually.
+Do not make a listing public. The separate browser skill transfers the generated copy and files and saves an unpublished draft, with user assistance only when required.
 
 Tests: `uv run --locked python -m unittest discover -s tests`.

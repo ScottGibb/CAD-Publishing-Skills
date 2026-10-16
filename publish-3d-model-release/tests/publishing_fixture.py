@@ -11,7 +11,11 @@ sys.path.insert(0, str(ROOT / "publish-3d-model-release" / "scripts"))
 
 
 def module(platform):
-    skill = "prepare-printables-upload" if platform == "printables" else f"publish-{platform}"
+    skill = (
+        "prepare-printables-upload"
+        if platform == "printables"
+        else f"publish-{platform}"
+    )
     path = ROOT / skill / "scripts" / f"upload_{platform}.py"
     sys.path.insert(0, str(path.parent))
     spec = importlib.util.spec_from_file_location(f"test_{platform}_module", path)

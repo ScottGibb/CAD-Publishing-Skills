@@ -5,7 +5,7 @@ description: Coordinate Thingiverse drafts, Printables manual upload packages an
 
 # Publish 3D Model Release
 
-Use a `release-manifest.json` produced by `$prepare-3d-model-release`. Run the Python commands with `uv`; use the three platform skills independently for single-platform requests.
+Use a `release-manifest.json` produced by `$prepare-3d-model-release`. Run the Python commands with `uv`; use the platform skills independently for single-platform requests.
 
 The shared manifest must include the merged assembly STL with role `assembly-stl`. Send it to both Printables and Thingiverse with the component STLs and source CAD files. Never include it in slicing component mappings or generate G-code from it.
 
@@ -16,11 +16,11 @@ For releases containing G-code, check the [user review gate](../prepare-3d-model
 For releases with technical drawings, confirm each sheet preview is a declared gallery image for both platforms and is referenced in the Thingiverse Technical Drawing section plan. A successful preflight or verified text-only section does not establish these image placements. Resolve missing declarations before uploads; the drawing PDF remains a separate downloadable file.
 
 1. From this directory run `uv run --locked scripts/publish_release.py --manifest <manifest>` for a compact offline preflight. Do not print full plans or load script source during normal use.
-2. Read only the needed platform skill: [Thingiverse](../publish-thingiverse/SKILL.md), [Printables](../prepare-printables-upload/SKILL.md), or [YouTube](../publish-youtube/SKILL.md). See [account setup](references/account-setup.md) for credentials and the coordinator configuration.
+2. Read only the needed platform skill: [Thingiverse](../publish-thingiverse/SKILL.md), [Printables packet preparation](../prepare-printables-upload/SKILL.md) and [browser upload](../upload-printables-browser/SKILL.md), or [YouTube](../publish-youtube/SKILL.md). See [account setup](references/account-setup.md) for credentials and the coordinator configuration.
 3. Run `uv run --locked scripts/publish_release.py --manifest <manifest> --config <settings.json> --execute` to invoke the platform scripts. Use `--platform thingiverse`, `--platform printables`, or `--platform youtube` to narrow a run. Credentials are file paths or environment values, never pasted into chat.
-4. Read the compact results and `publication-record.json`. The Printables branch creates a browser-free manual upload package and reports `ready-for-manual-upload`; Thingiverse and YouTube retain their remote verification and receipt behavior. Resolve an actionable error without restarting completed uploads.
+4. Read the compact results and `publication-record.json`. The Printables branch creates a browser-free packet and reports `ready-for-manual-upload` with `next_skill: upload-printables-browser`; continue with that skill for an authorized upload. The CLI does not drive the interactive browser; Thingiverse and YouTube retain their remote verification and receipt behavior. Resolve an actionable error without restarting completed uploads.
 
-Thingiverse uses a Python Playwright adapter with a reusable inspected editor map. Printables creates a manual upload package because its automated browser route is blocked by an HTTP 403 security checkpoint. YouTube uses its Data API. Routine publishing does not use the Computer Use skill or screenshots. The user completes the final Printables form and saves it as a draft manually; Thingiverse login and checkpoints remain user actions. Do not silently start a model-directed clicking workflow or treat fixture tests as live verification.
+Thingiverse uses a Python Playwright adapter with a reusable inspected editor map. Printables content generation remains in `prepare-printables-upload`; remote draft creation uses `upload-printables-browser` through the interactive browser. YouTube uses its Data API. Read only the selected workflow. Account login and checkpoints can require user action; a successful local packet is not proof of a saved remote draft.
 
 For Thingiverse native print settings, post-printing photos and custom assembly/drawing/video sections, pass a `thingiverse.sections` content-plan path in coordinator settings or prepare `publication.thingiverse_sections` in the manifest. Read the Thingiverse skill's section reference for the schema. Changes to an existing draft use its direct `--update-sections` command only when requested; default reruns verify without editing.
 

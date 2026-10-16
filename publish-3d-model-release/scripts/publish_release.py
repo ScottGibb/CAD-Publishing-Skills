@@ -14,14 +14,36 @@ from publisher_support import (
 )
 
 SETTINGS = {
-    "thingiverse": ("category", "config", "profile_dir", "ui_map", "sections", "resume_url", "thing_id", "state", "headed", "channel"),
+    "thingiverse": (
+        "category",
+        "config",
+        "profile_dir",
+        "ui_map",
+        "sections",
+        "resume_url",
+        "thing_id",
+        "state",
+        "headed",
+        "channel",
+    ),
     "printables": ("output_dir", "format"),
-    "youtube": ("config", "client_secrets", "token_path", "session_path", "video_id", "state"),
+    "youtube": (
+        "config",
+        "client_secrets",
+        "token_path",
+        "session_path",
+        "video_id",
+        "state",
+    ),
 }
 
 
 def command(platform, release, settings, execute=False):
-    skill_name = "prepare-printables-upload" if platform == "printables" else f"publish-{platform}"
+    skill_name = (
+        "prepare-printables-upload"
+        if platform == "printables"
+        else f"publish-{platform}"
+    )
     skill = Path(__file__).resolve().parents[2] / skill_name
     args = [
         "uv",
@@ -118,6 +140,7 @@ def main(argv=None):
             else "completed",
             "failed_platforms": failed,
             "manual_platforms": manual_platforms,
+            "next_skill": "upload-printables-browser" if manual_platforms else None,
             "pending_platforms": pending,
             "record": str(record_path),
         }

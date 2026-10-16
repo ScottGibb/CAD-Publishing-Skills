@@ -1,20 +1,21 @@
 # CAD Publishing Skills
 
-Reusable skills and `uv`-managed Python scripts for preparing a 3D-model release, creating Thingiverse drafts, preparing Printables manual upload packets, and uploading an optional private YouTube video.
+Reusable skills and `uv`-managed Python scripts for preparing a 3D-model release, creating Thingiverse drafts, preparing Printables upload packets, uploading Printables drafts through the interactive browser, and uploading an optional private YouTube video.
 
-The aim is to reduce repeated agent context and computer-use interactions: validate one release manifest, run deterministic scripts, and return compact results. Routine preparation does not require screenshots or model-directed clicking. Thingiverse uses a Python browser adapter; Printables uses a browser-free manual upload packet.
+The aim is to reduce repeated agent context and computer-use interactions: validate one release manifest, run deterministic scripts, and return compact results. Routine preparation does not require screenshots or model-directed clicking. Thingiverse uses a Python browser adapter. Printables separates browser-free content preparation from interactive browser uploading.
 
 ## Skills
 
-| Skill                                                         | Responsibility                                                                            | Implementation                                                                |
-|---------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| [prepare-3d-model-release](prepare-3d-model-release/SKILL.md) | Prepare assets, listing copy and an immutable release manifest                            | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
-| [publish-3d-model-release](publish-3d-model-release/SKILL.md) | Preflight and coordinate the selected publishers                                          | Python subprocesses in separate locked `uv` environments                      |
-| [publish-thingiverse](publish-thingiverse/SKILL.md)           | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens                                  |
-| [prepare-printables-upload](prepare-printables-upload/SKILL.md)             | Prepare paste-ready copy and grouped upload files for a manual draft                      | Browser-free Python package generator                                         |
-| [publish-youtube](publish-youtube/SKILL.md)                   | Upload or resume a private video and verify its metadata                                  | YouTube Data API with OAuth and resumable transfer                            |
+| Skill                                                           | Responsibility                                                                            | Implementation                                                                |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| [prepare-3d-model-release](prepare-3d-model-release/SKILL.md)   | Prepare assets, listing copy and an immutable release manifest                            | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
+| [publish-3d-model-release](publish-3d-model-release/SKILL.md)   | Preflight and coordinate the selected publishers                                          | Python subprocesses in separate locked `uv` environments                      |
+| [publish-thingiverse](publish-thingiverse/SKILL.md)             | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens                                  |
+| [prepare-printables-upload](prepare-printables-upload/SKILL.md) | Prepare paste-ready copy and grouped upload files for a manual draft                      | Browser-free Python package generator                                         |
+| [upload-printables-browser](upload-printables-browser/SKILL.md) | Upload prepared content and verify an unpublished Printables draft                        | Interactive browser; bounded user handoff for login/file selection            |
+| [publish-youtube](publish-youtube/SKILL.md)                     | Upload or resume a private video and verify its metadata                                  | YouTube Data API with OAuth and resumable transfer                            |
 
-Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Each skill has its own `SKILL.md`, `pyproject.toml` and `uv.lock`.
+Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Python skills have their own `SKILL.md`, `pyproject.toml` and `uv.lock`. The browser-only upload skill has `SKILL.md` and a `version.txt` tracked by Release Please; it needs no Python environment.
 
 ## End-to-end flow
 
@@ -29,7 +30,7 @@ flowchart TD
     Coordinator --> Printables["Printables package script: manual upload packet"]
     Coordinator --> YouTube["YouTube API: optional private video"]
     Thingiverse --> Record["Verified results in publication-record.json"]
-    Printables --> Manual["User uploads packet and saves a draft"]
+    Printables --> Manual["Interactive browser uploads packet and saves a draft"]
     Manual --> Record
     YouTube --> Record
     Record --> Obsidian["Optional project-note update through Obsidian MCP"]
@@ -60,17 +61,17 @@ For preparation, also run `uv sync --locked --project prepare-3d-model-release`.
 
 ### Account setup
 
-| Platform    | Required setup                                                                   | Details                                                                     |
-|-------------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| Thingiverse | A dedicated signed-in Chrome profile, observed editor map and confirmed category | [Login and browser setup](publish-thingiverse/references/browser.md)        |
-| Printables  | A validated release manifest and a destination for the manual upload packet      | [Manual upload skill](prepare-printables-upload/SKILL.md)                          |
-| YouTube     | A Google OAuth Desktop client, enabled YouTube Data API and user consent         | [OAuth, scopes and resumable sessions](publish-youtube/references/oauth.md) |
+| Platform    | Required setup                                                                   | Details                                                                                                 |
+| ----------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Thingiverse | A dedicated signed-in Chrome profile, observed editor map and confirmed category | [Login and browser setup](publish-thingiverse/references/browser.md)                                    |
+| Printables  | A validated release packet and a signed-in interactive browser                   | [Preparation](prepare-printables-upload/SKILL.md), [browser upload](upload-printables-browser/SKILL.md) |
+| YouTube     | A Google OAuth Desktop client, enabled YouTube Data API and user consent         | [OAuth, scopes and resumable sessions](publish-youtube/references/oauth.md)                             |
 
 Store credentials, browser profiles and sensitive upload-session files outside the repository, release folder and Obsidian vault. Do not paste their contents into chat. Login and security checkpoints remain user actions. Thingiverse's upload terms can be accepted with the direct CLI's `--accept-upload-terms` only after explicit authorization for that draft; the flag does not cover other consent or security checks.
 
-Thingiverse has a live-tested [Bathroom / CC-BY-4.0 editor map](publish-thingiverse/references/bathroom-cc-by-map.json). Reuse it for matching releases; inspect and adapt it for another category, licence or changed site. Printables uses the local manual package generator; its browser diagnostic history is recorded in [browser status](prepare-printables-upload/references/browser.md).
+Thingiverse has a live-tested [Bathroom / CC-BY-4.0 editor map](publish-thingiverse/references/bathroom-cc-by-map.json). Reuse it for matching releases; inspect and adapt it for another category, licence or changed site. Printables uses [packet preparation](prepare-printables-upload/SKILL.md), then [interactive browser upload](upload-printables-browser/SKILL.md). The historical scripted browser diagnostics remain in [browser status](prepare-printables-upload/references/browser.md).
 
-Live status on 10 September 2026: the authorized Thingiverse test draft was saved and reopened with 12 source assets, 10 tags and all five native sections. Printables automation remains blocked by an HTTP 403/security checkpoint; no Printables test upload was verified. The supported path is the browser-free package followed by the user's manual draft upload.
+Live status on 16 October 2026: the interactive browser saved and reopened a Printables draft with CAD/model files, G-code, gallery photos, a downloadable drawing PDF, a full-resolution inline drawing and an existing video embed. Login and ZIP selection were user-assisted. Automatic file selection and gallery ordering were not established by that run. The older scripted route's HTTP 403 is not a blocker for the interactive browser workflow.
 
 ### Browser connection flow
 
@@ -79,9 +80,9 @@ flowchart TD
     Manifest["Validated release manifest"] --> Package["Printables package script"]
     Package --> Copy["Markdown fields and tags.txt"]
     Package --> Folders["Model, image and G-code folders"]
-    Copy --> User["User uploads and saves as draft"]
+    Copy --> User["Browser uploads and saves as draft"]
     Folders --> User
-    User --> Review["User reviews category, licence and draft visibility"]
+    User --> Review["Reopen and verify category, licence, files, gallery order and draft visibility"]
 ```
 
 Thingiverse retains the browser setup described in its own skill. Printables' package command does not open Chrome, contact Printables or write a remote listing.
@@ -164,9 +165,9 @@ uv run --locked --project publish-3d-model-release \
   --execute
 ```
 
-`--execute` enables Thingiverse and YouTube actions, not public publication. Thingiverse stays as a draft and YouTube stays private. Printables is prepared as a manual packet; the user saves its draft in normal Chrome.
+`--execute` enables Thingiverse and YouTube actions, not public publication. Thingiverse stays as a draft and YouTube stays private. Printables is prepared as a content/file packet; continue with `upload-printables-browser` to save and verify the remote draft. The CLI does not automate that browser stage.
 
-The coordinator preflights every selected command before the first upload. If preflight fails, it performs no service writes. During execution, it reports each platform failure and continues the other selected platforms. Its final status is `completed`, `processing`, `ready-for-manual-upload` or `needs-attention`; a failure produces a nonzero exit code. A zero exit code with `processing` does not mean YouTube processing has finished.
+The coordinator preflights every selected command before the first upload. If preflight fails, it performs no service writes. During execution, it reports each platform failure and continues the other selected platforms. Its final status is `completed`, `processing`, `ready-for-manual-upload` or `needs-attention`; the existing Printables handoff status includes `next_skill: upload-printables-browser`; a failure produces a nonzero exit code. A zero exit code with `processing` does not mean YouTube processing has finished.
 
 ## Running one platform directly
 
@@ -235,7 +236,7 @@ flowchart TD
 State is bound to the manifest hash. Preserve `.publication-state/` and any YouTube session file between runs; do not delete them to make an error disappear.
 
 - **Thingiverse:** known draft IDs are reused, including existing receipts from the former API uploader. Use `--thing-id` or `--resume-url` to verify an existing draft without uploading again, retaining its section plan. `--update-sections` is an explicit, user-requested edit, not the default resume behavior. Uncertain saves and file uploads need reconciliation against that exact draft; the script does not blindly repeat them.
-- **Printables:** reruns validate the manifest and reuse an existing packet for the same manifest. Review `UPLOAD.md`, upload its folders manually and save the model as a draft in normal Chrome.
+- **Printables:** reruns validate the manifest and reuse an existing packet for the same manifest. Continue with `upload-printables-browser`, preserving an existing draft URL and user edits. The packet command itself never uploads.
 - **YouTube:** transfer resumes from the server's acknowledged offset. Once a video ID is known, it is verified instead of uploaded again. An uncertain initiation or unusable session stops for inspection. Use the direct uploader's `--verify-only` with the same manifest and credential options for a later processing check.
 
 Remote verification checks saved metadata and visibility, not just an HTTP success or a clicked button. Processing failures are errors; an unfinished video is recorded as processing, not completed. Each platform preserves the other platforms' entries in the publication record.
@@ -243,7 +244,7 @@ Remote verification checks saved metadata and visibility, not just an HTTP succe
 ## Release artifacts and state
 
 | Artifact                                | Purpose                                                                                          |
-|-----------------------------------------|--------------------------------------------------------------------------------------------------|
+| --------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `fusion-export.json`                    | Export provenance used during preparation                                                        |
 | `release-manifest.json`                 | Immutable metadata, asset hashes and platform-specific file declarations                         |
 | `listing-copy.md`, `release-summary.md` | Human-readable preparation outputs                                                               |
@@ -260,10 +261,10 @@ The legacy `create_publish_plan.py` can still write a full `publish-plan.json`. 
 
 - Model listings are draft-only; YouTube uploads are private-only. A work-in-progress label does not prove a listing is private.
 - Files and hashes are validated before uploads. Shared model uploads exclude G-code. No script sends a job to a printer.
-- Manifest tags are passed to all three platforms. Printables lowercases them and replaces whitespace with hyphens so phrases remain single tags.
+- Manifest tags are passed to all three platforms. The Printables packet supplies lowercase, space-separated tags.
 - The Thingiverse API implementation has been removed. The [browser adapter](publish-thingiverse/references/browser.md) has live-verified draft files, tags and native Print Settings, Post Printing, Exploded View, Technical Drawing and Assembly Instructions. Existing API token files are left untouched but are not used. Hero-image ordering is not yet live-verified.
-- A supported public Printables upload API was not verified. Its browser adapter is blocked by the site's HTTP 403 bot-detection checkpoint, so the Printables skill produces a browser-free manual upload packet instead.
-- Browser regression coverage uses intercepted local editor fixtures. This is not proof of successful authenticated Thingiverse or Printables uploads; record live checks separately.
+- A supported public Printables upload API was not verified. Use the interactive browser skill, which can need user-assisted login or file selection; do not use the retired scripted adapter.
+- Browser regression coverage uses intercepted local editor fixtures. These fixtures do not prove authenticated uploads; record live browser checks separately.
 - The preparation CLI currently reads the project note as input. Optional published-link or project-note updates remain separate, user-requested Obsidian MCP operations; the publishers do not write vault files.
 
 ## Development and validation
@@ -286,3 +287,9 @@ done
 The Printables test suite covers package creation and manifest validation without contacting Printables. Thingiverse's browser suite uses its own locked Playwright environment. Tests exercise validation, file routing, metadata, private/draft safeguards, interrupted uploads and duplicate prevention without publishing to real accounts.
 
 Repository CI is configured for Markdown, link, table, YAML, JSON and Python checks through MegaLinter. Dependabot tracks the separate `uv` projects, and Release Please tracks each skill package. Changes to an adapter should include focused tests; live account checks must be authorized and reported separately from fixture coverage.
+
+## Printables migration
+
+`publish-printables` is deprecated and removed. Use `prepare-printables-upload` for the existing documentation and packet generation workflow, then `upload-printables-browser` for remote upload. Update installed skill links and `uv --project` paths; the coordinator retains its `printables` platform/config keys and local packet format.
+
+The upload skill orders galleries with the render first and technical drawings last. It uses real Markdown headings, keeps drawings in both gallery and description, and omits description print settings when G-code is present. Thingiverse retains its print settings. Neither skill publishes a listing.
