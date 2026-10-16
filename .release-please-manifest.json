@@ -1,6 +1,6 @@
 {
   "prepare-3d-model-release": "0.3.2",
-  "publish-3d-model-release": "0.2.1",
+  "publish-3d-model-release": "1.0.0",
   "publish-thingiverse": "0.2.2",
   "publish-youtube": "0.2.1",
   "prepare-printables-upload": "1.0.0",
