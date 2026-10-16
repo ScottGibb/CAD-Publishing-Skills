@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-3d-model-release-v0.2.1...publish-3d-model-release-v1.0.0) (2026-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* **printables:** replace the publish-printables skill and uv project path with prepare-printables-upload. Preserve the content generator and route coordinator packaging to its new path.
+
+### Features
+
+* **printables:** add interactive browser upload skill ([60e39ea](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/60e39eabc5406399d861e54f1126c4cfe010e75b))
+* **printables:** deprecate publish-printables and preserve packet preparation ([7e18ff7](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/7e18ff7759d826b95c0efceea283ffcc9ccf10cb))
+
+
+### Bug Fixes
+
+* Thingiverse upload now uploads technical drawing as part of the gallery and technical drawing section ([9dbe466](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/9dbe46691fd1ef629cc98068e855518a7066bb23))
+
 ## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-3d-model-release-v0.2.0...publish-3d-model-release-v0.2.1) (2026-09-30)
 
 ### Bug Fixes
