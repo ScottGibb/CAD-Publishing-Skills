@@ -18,7 +18,7 @@ updates:
       - "/prepare-3d-model-release"
       - "/publish-3d-model-release"
       - "/publish-thingiverse"
-      - "/publish-printables"
+      - "/prepare-printables-upload"
       - "/publish-youtube"
     schedule:
       interval: "monthly"

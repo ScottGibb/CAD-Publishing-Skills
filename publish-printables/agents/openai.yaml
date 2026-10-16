@@ -1,4 +1,0 @@
-interface:
-  display_name: "Publish Printables"
-  short_description: "Prepare a Printables manual upload packet"
-  default_prompt: "Use $publish-printables to prepare my validated release for manual Printables upload."

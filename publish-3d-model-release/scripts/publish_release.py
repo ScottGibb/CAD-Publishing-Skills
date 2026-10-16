@@ -21,7 +21,8 @@ SETTINGS = {
 
 
 def command(platform, release, settings, execute=False):
-    skill = Path(__file__).resolve().parents[2] / f"publish-{platform}"
+    skill_name = "prepare-printables-upload" if platform == "printables" else f"publish-{platform}"
+    skill = Path(__file__).resolve().parents[2] / skill_name
     args = [
         "uv",
         "run",

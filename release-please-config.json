@@ -15,11 +15,11 @@
     "publish-thingiverse": {
       "package-name": "publish-thingiverse"
     },
-    "publish-printables": {
-      "package-name": "publish-printables"
-    },
     "publish-youtube": {
       "package-name": "publish-youtube"
+    },
+    "prepare-printables-upload": {
+      "package-name": "prepare-printables-upload"
     }
   }
 }

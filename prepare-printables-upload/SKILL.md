@@ -1,11 +1,13 @@
 ---
-name: publish-printables
+name: prepare-printables-upload
 description: Prepare a validated Printables manual-upload package with paste-ready Markdown, tags, model files, gallery images and printer-ready G-code.
 ---
 
-# Publish Printables
+# Prepare Printables Upload
 
-Use this skill after a release manifest has been prepared. It creates a browser-free upload packet so the user can complete the final Printables form manually.
+Use this skill after a release manifest has been prepared. It creates the browser-free content and file packet for a separate upload workflow. It does not upload content or save a remote listing.
+
+This replaces the deprecated `publish-printables` packet skill; existing package commands now run from `prepare-printables-upload`.
 
 Before packaging a release containing G-code, follow the [user review gate](../prepare-3d-model-release/references/slicing.md#user-review-gate). Confirm that the user reviewed and approved the actual G-code and its orientation for the current file hashes. This also applies to reused G-code and existing packets. If approval is missing or invalidated by changed files, show the review and pause before continuing. Do not infer approval from a valid manifest or a general upload request.
 

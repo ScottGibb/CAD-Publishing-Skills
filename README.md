@@ -11,7 +11,7 @@ The aim is to reduce repeated agent context and computer-use interactions: valid
 | [prepare-3d-model-release](prepare-3d-model-release/SKILL.md) | Prepare assets, listing copy and an immutable release manifest                            | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
 | [publish-3d-model-release](publish-3d-model-release/SKILL.md) | Preflight and coordinate the selected publishers                                          | Python subprocesses in separate locked `uv` environments                      |
 | [publish-thingiverse](publish-thingiverse/SKILL.md)           | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens                                  |
-| [publish-printables](publish-printables/SKILL.md)             | Prepare paste-ready copy and grouped upload files for a manual draft                      | Browser-free Python package generator                                         |
+| [prepare-printables-upload](prepare-printables-upload/SKILL.md)             | Prepare paste-ready copy and grouped upload files for a manual draft                      | Browser-free Python package generator                                         |
 | [publish-youtube](publish-youtube/SKILL.md)                   | Upload or resume a private video and verify its metadata                                  | YouTube Data API with OAuth and resumable transfer                            |
 
 Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Each skill has its own `SKILL.md`, `pyproject.toml` and `uv.lock`.
@@ -52,7 +52,7 @@ Synchronize the projects you need. There is no root Python project or combined v
 ```bash
 uv sync --locked --project publish-3d-model-release
 uv sync --locked --project publish-thingiverse
-uv sync --locked --project publish-printables
+uv sync --locked --project prepare-printables-upload
 uv sync --locked --project publish-youtube
 ```
 
@@ -63,12 +63,12 @@ For preparation, also run `uv sync --locked --project prepare-3d-model-release`.
 | Platform    | Required setup                                                                   | Details                                                                     |
 |-------------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | Thingiverse | A dedicated signed-in Chrome profile, observed editor map and confirmed category | [Login and browser setup](publish-thingiverse/references/browser.md)        |
-| Printables  | A validated release manifest and a destination for the manual upload packet      | [Manual upload skill](publish-printables/SKILL.md)                          |
+| Printables  | A validated release manifest and a destination for the manual upload packet      | [Manual upload skill](prepare-printables-upload/SKILL.md)                          |
 | YouTube     | A Google OAuth Desktop client, enabled YouTube Data API and user consent         | [OAuth, scopes and resumable sessions](publish-youtube/references/oauth.md) |
 
 Store credentials, browser profiles and sensitive upload-session files outside the repository, release folder and Obsidian vault. Do not paste their contents into chat. Login and security checkpoints remain user actions. Thingiverse's upload terms can be accepted with the direct CLI's `--accept-upload-terms` only after explicit authorization for that draft; the flag does not cover other consent or security checks.
 
-Thingiverse has a live-tested [Bathroom / CC-BY-4.0 editor map](publish-thingiverse/references/bathroom-cc-by-map.json). Reuse it for matching releases; inspect and adapt it for another category, licence or changed site. Printables uses the local manual package generator; its browser diagnostic history is recorded in [browser status](publish-printables/references/browser.md).
+Thingiverse has a live-tested [Bathroom / CC-BY-4.0 editor map](publish-thingiverse/references/bathroom-cc-by-map.json). Reuse it for matching releases; inspect and adapt it for another category, licence or changed site. Printables uses the local manual package generator; its browser diagnostic history is recorded in [browser status](prepare-printables-upload/references/browser.md).
 
 Live status on 10 September 2026: the authorized Thingiverse test draft was saved and reopened with 12 source assets, 10 tags and all five native sections. Printables automation remains blocked by an HTTP 403/security checkpoint; no Printables test upload was verified. The supported path is the browser-free package followed by the user's manual draft upload.
 
@@ -177,8 +177,8 @@ uv run --locked --project publish-thingiverse \
   publish-thingiverse/scripts/upload_thingiverse.py \
   --manifest "/absolute/release/release-manifest.json" --category "Bathroom"
 
-uv run --locked --no-dev --project publish-printables \
-  publish-printables/scripts/upload_printables.py package \
+uv run --locked --no-dev --project prepare-printables-upload \
+  prepare-printables-upload/scripts/upload_printables.py package \
   --manifest "/absolute/release/release-manifest.json" \
   --format markdown
 
@@ -275,7 +275,7 @@ for cad_skill in \
   prepare-3d-model-release \
   publish-3d-model-release \
   publish-thingiverse \
-  publish-printables \
+  prepare-printables-upload \
   publish-youtube
 do
   uv run --locked --project "$cad_skill" \

@@ -3,7 +3,7 @@
 Each platform has its own Python skill and locked `uv` environment. First-time setup:
 
 - [Thingiverse dedicated login and editor mapping](../../publish-thingiverse/references/browser.md).
-- [Printables manual upload package](../../publish-printables/SKILL.md).
+- [Printables manual upload package](../../prepare-printables-upload/SKILL.md).
 - [YouTube OAuth and resumable uploads](../../publish-youtube/references/oauth.md).
 
 The coordinator accepts JSON settings with these platform objects. Omit YouTube when the release has no video. Use absolute paths for files; the example paths are illustrative.
