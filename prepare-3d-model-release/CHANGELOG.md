@@ -2,7 +2,6 @@
 
 ## [0.3.3](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/prepare-3d-model-release-v0.3.2...prepare-3d-model-release-v0.3.3) (2026-10-17)
 
-
 ### Bug Fixes
 
 * remove extra fluff from releases ([cf472c8](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/cf472c864d367c505be722179c2640b11998815b))
