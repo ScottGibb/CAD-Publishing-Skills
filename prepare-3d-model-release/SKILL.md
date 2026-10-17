@@ -7,6 +7,8 @@ description: Prepare a versioned 3D-printable model release from an Obsidian pro
 
 Use the Obsidian project note as the source of truth. Do not access excluded vault areas.
 
+For Scott's Thingiverse and Printables listing copy, omit standalone Validation sections and unrequested test-status boilerplate. Keep release checks, G-code review and validation records in the preparation workflow; do not move the omitted boilerplate into another listing section or imply that unperformed tests passed.
+
 ## Workflow
 
 1. Add the [publication template](assets/publication-template.md) to the project note and complete its JSON values.
