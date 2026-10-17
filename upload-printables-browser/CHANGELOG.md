@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/upload-printables-browser-v0.2.0...upload-printables-browser-v0.2.1) (2026-10-17)
+
+
+### Bug Fixes
+
+* remove extra fluff from releases ([cf472c8](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/cf472c864d367c505be722179c2640b11998815b))
+
 ## [0.2.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/upload-printables-browser-v0.1.0...upload-printables-browser-v0.2.0) (2026-10-16)
 
 ### Features
