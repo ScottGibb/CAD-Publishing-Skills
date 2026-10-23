@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-3d-model-release-v1.0.0...publish-3d-model-release-v1.1.0) (2026-10-23)
+
+
+### Features
+
+* add versioned CAD turntable publishing workflow ([e3701f1](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/e3701f1426b20a17747f7b0537c849d10a1a2671))
+
 ## [1.0.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-3d-model-release-v0.2.1...publish-3d-model-release-v1.0.0) (2026-10-16)
 
 ### ⚠ BREAKING CHANGES
