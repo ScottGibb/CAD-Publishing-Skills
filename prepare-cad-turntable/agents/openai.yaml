@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare CAD Turntable"
+  short_description: "Render a looping Blender video for a CAD release"
+  default_prompt: "Use $prepare-cad-turntable to prepare a Blender turntable video for my CAD release without a saved still."

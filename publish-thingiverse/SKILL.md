@@ -19,3 +19,7 @@ Routine use runs the script without loading its source, screenshots or model-dir
 Keep the licence in Thingiverse's dedicated licence field; do not repeat generated licence text in the main description. The Thingiverse API path has been removed. Existing token files are not used or deleted. Browser settings can be supplied through flags or a separate private TOML file described in the reference; do not overwrite another platform's credentials.
 
 Prioritize a signed-in inspection and one authorized draft happy path before expanding tests. Local regression checks remain available with `uv run --locked python -m unittest discover -s tests`.
+
+## Turntable section
+
+When a turntable is part of the requested listing, follow [the video handoff](../publish-3d-model-release/references/turntable-listings.md) and add a native custom section titled **Turntable**, with the verified turntable YouTube URL and caption `360-degree CAD turntable`. Keep any Exploded View section and its distinct video. Use the external section-plan path after YouTube upload; do not patch the immutable manifest. Reopen the saved draft and verify the Turntable title, caption and exact video ID. No turntable still or thumbnail is required.

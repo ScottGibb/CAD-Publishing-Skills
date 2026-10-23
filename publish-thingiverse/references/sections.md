@@ -63,3 +63,7 @@ Rerunning the same command with `--execute` and the same receipt is read-only re
 Verification reopens the saved editor and checks print settings, section titles/text, image captions and persisted image URLs, and the embedded video ID. The receipt and publication record include `sections_verified` and `sections_sha256`. Changing a separate section plan does not silently change a remote draft: a verification mismatch requires an explicit update.
 
 The coordinator accepts `thingiverse.sections` as a file path. Edit authorization and terms acceptance remain per-run flags on the direct Thingiverse command, not stored standing permissions in coordinator settings.
+
+## Turntable
+
+For turntable releases, include a separate native **Turntable** custom section using the same `video_url` and `video_caption` fields as the Exploded View example. Use caption `360-degree CAD turntable` and the verified turntable ID, preserving any existing Exploded View card. Follow [the turntable handoff](../../publish-3d-model-release/references/turntable-listings.md) for upload ordering and receipt checks. Verify both cards independently after reopening. Do not substitute a Summary heading for a native section or create a gallery still.

@@ -1,6 +1,6 @@
 ---
 name: publish-youtube
-description: Upload a prepared CAD exploded-view or assembly video privately to YouTube using a uv-managed Python script, with manifest tags, OAuth, resumable transfer and recorded video IDs.
+description: Upload a prepared CAD turntable, exploded-view or assembly video privately to YouTube using a uv-managed Python script, with manifest tags, OAuth, resumable transfer and recorded video IDs.
 ---
 
 # Publish YouTube
@@ -27,3 +27,7 @@ token_path = "youtube-token.json"
 ```
 
 Paths resolve relative to the TOML file; explicit CLI path options override them. Google OAuth client and refresh credentials remain in their native JSON files outside the repository and vault. The client file must be downloaded from Google Cloud; the token file is created by the first successful consent flow. Do not create placeholder credential JSON files.
+
+## Turntable listing handoff
+
+For a turntable release, upload and verify this video before the listing section steps. Return the exact video ID/URL and processing state so [the turntable listing handoff](../publish-3d-model-release/references/turntable-listings.md) can reuse them for Thingiverse's native Turntable section and Printables' Turntable heading/embed. The uploader does not edit either listing. Preserve the private setting and do not add a thumbnail when none was declared.

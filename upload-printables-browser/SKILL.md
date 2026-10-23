@@ -31,3 +31,7 @@ Use the available interactive browser tools, normally `mcp__cua_repl`, and their
 ## Keep context small
 
 Read the packet summary once. Batch deterministic field actions and inspect a focused state afterward; use small accessibility diffs or bounded snapshots rather than full-page dumps. Use semantic locators for repeated fields, and current accessibility indices for one-off controls. Take screenshots for visual verification or a concrete blocker, not after every click. Do not loop through failed selectors or repeatedly reopen the same unsaved upload.
+
+## Turntable section
+
+When supplied with a turntable presentation handoff, follow [the video handoff](../publish-3d-model-release/references/turntable-listings.md). Check its manifest/video hashes against the validated release and its video ID against the verified YouTube result. Prepare the addition from that handoff, then add a real **Turntable** heading and embed through the supported editor video control. This requested presentation addition extends the prepared description; preserve its other content and any Exploded view embed. Reuse an existing matching Turntable section rather than duplicating it. No gallery still, thumbnail or downloadable video is required. Save the unpublished draft, reopen it, and verify the heading and exact video ID; record both with the listing result. Report private-video playback restrictions without changing privacy.

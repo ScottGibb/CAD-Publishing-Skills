@@ -35,3 +35,7 @@ The former scripted `login`, `inspect` and `draft` commands remain only as recor
 Do not make a listing public. The separate browser skill transfers the generated copy and files and saves an unpublished draft, with user assistance only when required.
 
 Tests: `uv run --locked python -m unittest discover -s tests`.
+
+## Turntable presentation handoff
+
+For a requested turntable section, follow [the video handoff](../publish-3d-model-release/references/turntable-listings.md). Supply the verified `turntable-listing.json` beside the packet to `upload-printables-browser`; it provides the URL for a real `## Turntable` heading and video embed. The package script does not fetch YouTube receipts or automatically insert this section. Prepare this small addition separately from the checksummed packet, preserving existing copy and any Exploded view section. Do not modify packet content while retaining stale checksums. No saved still or thumbnail is needed.

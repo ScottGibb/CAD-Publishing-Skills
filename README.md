@@ -6,8 +6,11 @@ The aim is to reduce repeated agent context and computer-use interactions: valid
 
 ## Skills
 
+Optional Blender turntables are prepared with [prepare-cad-turntable](prepare-cad-turntable/SKILL.md) before manifest generation. The skill has an independent Release Please version in `version.txt`. It produces a versioned MP4 and local Blender source, with no saved still or thumbnail. The existing single-video manifest checksums the MP4 and routes it to the private YouTube uploader. If an assembly video is already declared, choose which video to publish; multiple videos per release are not supported. Blender source is not automatically checksummed or uploaded.
+
 | Skill                                                           | Responsibility                                                                            | Implementation                                                                |
 |-----------------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [prepare-cad-turntable](prepare-cad-turntable/SKILL.md)         | Prepare a looping Blender turntable video without a saved still                           | Blender tools or local Blender Python; independently versioned skill          |
 | [prepare-3d-model-release](prepare-3d-model-release/SKILL.md)   | Prepare assets, listing copy and an immutable release manifest                            | Python validation; Fusion exporter and PrusaSlicer when preparation is needed |
 | [publish-3d-model-release](publish-3d-model-release/SKILL.md)   | Preflight and coordinate the selected publishers                                          | Python subprocesses in separate locked `uv` environments                      |
 | [publish-thingiverse](publish-thingiverse/SKILL.md)             | Create or verify drafts and update native print/assembly sections, files, images and tags | Python Playwright; no Thingiverse API tokens                                  |
@@ -15,13 +18,15 @@ The aim is to reduce repeated agent context and computer-use interactions: valid
 | [upload-printables-browser](upload-printables-browser/SKILL.md) | Upload prepared content and verify an unpublished Printables draft                        | Interactive browser; bounded user handoff for login/file selection            |
 | [publish-youtube](publish-youtube/SKILL.md)                     | Upload or resume a private video and verify its metadata                                  | YouTube Data API with OAuth and resumable transfer                            |
 
-Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Python skills have their own `SKILL.md`, `pyproject.toml` and `uv.lock`. The browser-only upload skill has `SKILL.md` and a `version.txt` tracked by Release Please; it needs no Python environment.
+Keep the sibling directories together: the platform scripts share validation and state helpers from `publish-3d-model-release`. Python skills have their own `SKILL.md`, `pyproject.toml` and `uv.lock`. The browser-only upload skill and Blender turntable skill have `SKILL.md` and a `version.txt` tracked by Release Please; neither needs a Python package environment.
 
 ## End-to-end flow
 
 ```mermaid
 flowchart TD
     Note["Publication JSON in the project note"] --> Prepare["Prepare and validate release assets"]
+    CAD["Saved CAD export"] --> Turntable["Optional Blender turntable: versioned MP4, no still"]
+    Turntable --> Prepare
     Assets["Existing or newly exported CAD files, images and optional video"] --> Prepare
     Slicing["PrusaSlicer: one G-code file per printable component"] --> Prepare
     Prepare --> Manifest["Immutable release-manifest.json and checksummed assets"]
@@ -293,3 +298,7 @@ Repository CI is configured for Markdown, link, table, YAML, JSON and Python che
 `publish-printables` is deprecated and removed. Use `prepare-printables-upload` for the existing documentation and packet generation workflow, then `upload-printables-browser` for remote upload. Update installed skill links and `uv --project` paths; the coordinator retains its `printables` platform/config keys and local packet format.
 
 The upload skill orders galleries with the render first and technical drawings last. It uses real Markdown headings, keeps drawings in both gallery and description, and omits description print settings when G-code is present. Thingiverse retains its print settings. Neither skill publishes a listing.
+
+## Turntable sections in listings
+
+Follow [the turntable video handoff](publish-3d-model-release/references/turntable-listings.md): prepare the Blender MP4, build the manifest, upload privately through `publish-youtube`, then pass the verified ID to a native **Turntable** section on Thingiverse and a **Turntable** heading/embed on Printables. Keep existing Exploded View content. This is a skill-directed handoff; the coordinator's default order and Printables package script do not automatically insert a newly returned video URL. No saved still or thumbnail is produced. Private videos remain restricted even when embedded.

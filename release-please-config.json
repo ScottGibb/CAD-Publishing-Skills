@@ -24,6 +24,10 @@
     "upload-printables-browser": {
       "package-name": "upload-printables-browser",
       "release-type": "simple"
+    },
+    "prepare-cad-turntable": {
+      "package-name": "prepare-cad-turntable",
+      "release-type": "simple"
     }
   }
 }

@@ -32,3 +32,7 @@ Optional Obsidian project notes remain an output through the Obsidian MCP tools 
 - Never make a YouTube upload public or unlisted.
 - Validate the manifest and asset hashes before any upload.
 - Do not store passwords, OAuth client secrets, or access tokens in the vault.
+
+## Turntable listings
+
+For a release with a turntable, follow [the turntable listing handoff](references/turntable-listings.md). Run the authorized YouTube upload first and verify its receipt before preparing Thingiverse's native Turntable video card and Printables' Turntable heading/embed. The default coordinator order does not automatically wire newly uploaded video URLs into listings. Preserve an existing Exploded View section and video. Private upload and persisted embed do not establish public playback.
