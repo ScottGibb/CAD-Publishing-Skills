@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-thingiverse-v0.2.2...publish-thingiverse-v0.3.0) (2026-10-24)
+
+
+### Features
+
+* add versioned CAD turntable publishing workflow ([e3701f1](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/e3701f1426b20a17747f7b0537c849d10a1a2671))
+
 ## [0.2.2](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/publish-thingiverse-v0.2.1...publish-thingiverse-v0.2.2) (2026-10-16)
 
 ### Bug Fixes
