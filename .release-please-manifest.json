@@ -4,6 +4,6 @@
   "publish-thingiverse": "0.3.0",
   "publish-youtube": "0.3.0",
   "prepare-printables-upload": "1.1.0",
-  "upload-printables-browser": "0.2.1",
+  "upload-printables-browser": "0.3.0",
   "prepare-cad-turntable": "0.2.0"
 }

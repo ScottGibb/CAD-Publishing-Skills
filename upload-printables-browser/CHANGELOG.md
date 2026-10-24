@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/upload-printables-browser-v0.2.1...upload-printables-browser-v0.3.0) (2026-10-24)
+
+
+### Features
+
+* add versioned CAD turntable publishing workflow ([e3701f1](https://github.com/ScottGibb/CAD-Publishing-Skills/commit/e3701f1426b20a17747f7b0537c849d10a1a2671))
+
 ## [0.2.1](https://github.com/ScottGibb/CAD-Publishing-Skills/compare/upload-printables-browser-v0.2.0...upload-printables-browser-v0.2.1) (2026-10-17)
 
 ### Bug Fixes
